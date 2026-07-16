@@ -1,0 +1,56 @@
+body{
+    background:#f5f6f8;
+}
+
+.navbar{
+    height:60px;
+}
+
+.sidebar{
+    min-height:calc(100vh - 60px);
+
+    background:white;
+
+    border-right:1px solid #dee2e6;
+
+    padding:25px;
+
+    box-shadow:0 0 12px rgba(0,0,0,.05);
+}
+
+main{
+    min-height: 80vh;
+    padding:40px;
+
+}
+
+.content-card{
+
+    background:white;
+
+    border-radius:15px;
+
+    padding:30px;
+
+    box-shadow:0 .5rem 1rem rgba(0,0,0,.08);
+
+}
+.list-group-item{
+
+    border:none;
+
+    border-radius:10px;
+
+    margin-bottom:8px;
+
+}
+.list-group-item.active{
+
+    border-radius:10px;
+
+}
+.list-group-item i{
+
+    margin-right:10px;
+
+}
