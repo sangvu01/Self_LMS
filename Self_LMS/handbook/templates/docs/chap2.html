@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block footer %} CHAPTER 2 {% endblock footer %}
+
+{% block primarybutton %}
+  {% comment %} <a class="btn btn-primary {% if page == "c1" %}active{% endif %}" href={% url 'c1' %}> Primary </a> {% endcomment %}
+  <a class="btn  {% if page == "c1" %}btn-primary {% else %}btn-secondary{% endif %} " href={% url 'c1' %}> Chap1 </a>
+  <a class="btn  {% if page == "c2" %}btn-primary {% else %}btn-secondary{% endif %} " href={% url 'c2' %}> Chap2 </a>
+  <a class="btn  {% if page == "c3" %}btn-primary {% else %}btn-secondary{% endif %} " href={% url 'c3' %}> Chap3 </a>
+  <a class="btn  {% if page == "c4" %}btn-primary {% else %}btn-secondary{% endif %} " href={% url 'c4' %}> Chap4 </a>
+  <a class="btn  {% if page == "c5" %}btn-primary {% else %}btn-secondary{% endif %} " href={% url 'c5' %}> Chap5 </a>
+  <a class="btn  {% if page == "c6" %}btn-primary {% else %}btn-secondary{% endif %} " href={% url 'c6' %}> Chap6 </a>
+{% endblock primarybutton %}
+
+
+{% block title %}
+    Chap2_Self_LMS
+{% endblock title %}
+
+{% block content %}
+    {% comment %} <div style={
+        background:white;
+
+        border-radius:15px;
+
+        padding:30px;
+
+        box-shadow:0 3px 12px rgba(0,0,0,.08);
+    }> {% endcomment %}
+<div class="bg-white rounded-4 p-4 shadow">
+<h1>Chapter 2</h1>
+
+<hr>
+
+<p>
+
+This is chapter 2.
+
+</p>
+
+</div>
+{% endblock content %}
