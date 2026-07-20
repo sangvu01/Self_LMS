@@ -19,5 +19,5 @@ from django.urls import path, include
 from handbook import views as handbook
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('handbook/', include("handbook.urls")),
+    path('', include("handbook.urls")),
 ]

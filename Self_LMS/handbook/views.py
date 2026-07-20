@@ -1,6 +1,10 @@
 from django.shortcuts import render
 
 # Create your views here.
+# <<<<<<< HEAD
+# =======
+def home(req):
+    return render(req, 'home.html')
 
 def base(req):
     return render(req, 'base.html')
@@ -35,3 +39,4 @@ def c6(req):
         "page" : "c6"
     })
 
+# >>>>>>> feature/documents
