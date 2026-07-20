@@ -1,0 +1,230 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> {% block title %} Self_LMS {% endblock title %} 
+      
+    </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet"
+      href="{% static 'css/style.css' %}">
+  </head>
+  <body>
+    {% comment %} <div class="px-5 py-3"> {% endcomment %}
+    <div class="">
+    {% comment %} <button type="button" class="btn btn-primary" > {% endcomment %}
+    <nav class="navbar navbar-dark bg-primary">
+
+    <div class="container-fluid">
+
+        <!-- Chỉ hiện trên mobile -->
+        <button
+            class="btn btn-primary d-lg-none"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#sidebar">
+
+            <i class="bi bi-list fs-3"></i>
+
+        </button>
+
+
+           <a class="navbar-brand fw-bold" href="{% url 'base' %}">
+
+<i class="bi bi-book-half"></i>
+
+Self LMS
+
+</a>
+
+
+    </div>
+
+</nav>
+<div
+    class="offcanvas offcanvas-start"
+    tabindex="-1"
+    id="sidebar">
+
+    <div class="offcanvas-header">
+
+        <h5>Documentation</h5>
+
+        <button
+            class="btn-close"
+            data-bs-dismiss="offcanvas">
+        </button>
+
+    </div>
+
+    <div class="offcanvas-body">
+
+        <div class="list-group">
+
+            <a href="{% url 'c1' %}"
+               class="list-group-item list-group-item-action {% if page == 'c1' %}active{% endif %}">
+                Chapter 1
+            </a>
+
+            <a href="{% url 'c2' %}"
+               class="list-group-item list-group-item-action {% if page == 'c2' %}active{% endif %}">
+                Chapter 2
+            </a>
+
+            <a href="{% url 'c3' %}"
+               class="list-group-item list-group-item-action {% if page == 'c3' %}active{% endif %}">
+                Chapter 3
+            </a>
+
+            <a href="{% url 'c4' %}"
+               class="list-group-item list-group-item-action {% if page == 'c4' %}active{% endif %}">
+                Chapter 4
+            </a>
+
+            <a href="{% url 'c5' %}"
+               class="list-group-item list-group-item-action {% if page == 'c5' %}active{% endif %}">
+                Chapter 5
+            </a>
+
+            <a href="{% url 'c6' %}"
+               class="list-group-item list-group-item-action {% if page == 'c6' %}active{% endif %}">
+                Chapter 6
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="container-fluid">
+
+    <div class="row">
+
+        <!-- Sidebar -->
+
+        <aside class="col-md-3 col-lg-2 d-none d-md-block sidebar">
+
+            <h5 class="fw-bold mb-4">
+
+              <i class="bi bi-journal-bookmark"></i>
+
+                Documentation
+
+            </h5>
+
+            <div class="list-group">
+
+                <a href="{% url 'c1' %}"
+                   class="list-group-item list-group-item-action
+                   {% if page == 'c1' %}active{% endif %}">
+
+                    <i class="bi bi-book"></i>
+
+                    Chapter 1
+
+                </a>
+
+                <a href="{% url 'c2' %}"
+                   class="list-group-item list-group-item-action
+                   {% if page == 'c2' %}active{% endif %}">
+
+                    <i class="bi bi-book"></i>
+
+                    Chapter 2
+
+                </a>
+
+                <a href="{% url 'c3' %}"
+                   class="list-group-item list-group-item-action
+                   {% if page == 'c3' %}active{% endif %}">
+
+                    <i class="bi bi-book"></i>
+
+                    Chapter 3
+
+                </a>
+
+                <a href="{% url 'c4' %}"
+                   class="list-group-item list-group-item-action
+                   {% if page == 'c4' %}active{% endif %}">
+
+                    <i class="bi bi-book"></i>
+
+                    Chapter 4
+
+                </a>
+
+                <a href="{% url 'c5' %}"
+                   class="list-group-item list-group-item-action
+                   {% if page == 'c5' %}active{% endif %}">
+
+                    <i class="bi bi-book"></i>
+
+                    Chapter 5
+
+                </a>
+
+                <a href="{% url 'c6' %}"
+                   class="list-group-item list-group-item-action
+                   {% if page == 'c6' %}active{% endif %}">
+
+                    <i class="bi bi-book"></i>
+
+                    Chapter 6
+
+                </a>
+
+            </div>
+
+        </aside>
+
+        <!-- Main -->
+
+        <main class="col-md-9 col-lg-10 ">
+
+            {% block content %}
+              <div class="bg-white rounded-4 p-4 shadow">
+                WELCOME TO SELF LMS
+              <div>
+            {% endblock %}
+
+        </main>
+
+    </div>
+
+</div>
+    {% comment %} {% block primarybutton %}
+      {% comment %} <a class="btn btn-primary {% if page == "c1" %}active{% endif %}" href={% url 'c1' %}> Primary </a> 
+      <a class="btn  {% if page == "c1" %}btn-primary {% else %}btn-secondary{% endif %}" href={% url 'c1' %}> Chap1 </a>
+      <a class="btn  {% if page == "c2" %}btn-primary {% else %}btn-secondary{% endif %} " href={% url 'c1' %}> Chap2 </a>
+      <a class="btn  {% if page == "c3" %}btn-primary {% else %}btn-secondary{% endif %} " href={% url 'c1' %}> Chap3 </a>
+      <a class="btn  {% if page == "c4" %}btn-primary {% else %}btn-secondary{% endif %} " href={% url 'c1' %}> Chap4 </a>
+      <a class="btn  {% if page == "c5" %}btn-primary {% else %}btn-secondary{% endif %} " href={% url 'c1' %}> Chap5 </a>
+      <a class="btn  {% if page == "c6" %}btn-primary {% else %}btn-secondary{% endif %} " href={% url 'c1' %}> Chap6 </a>
+    {% endblock primarybutton %} {% endcomment %}
+    {% comment %} <a class="btn  {% if page == "c1" %}btn-primary{% endif %} " href={% url 'c1' %}> Chap1 </a> {% endcomment %}
+    
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+  
+
+  <footer >
+    <h1>
+      {% block footer %} BASEPAGE {% endblock footer %}
+    </h1>
+  </footer>
+
+  </body>
+
+
+  
+</html>
