@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="p-4">
+    <div class="mb-4">
+        <a href="{% url 'courses' %}" class="btn btn-outline-secondary btn-sm mb-3">← Back to Courses</a>
+        <h2 class="fw-bold mb-2">{{ course.title }}</h2>
+        <p class="text-muted mb-0">{{ course.description }}</p>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <span class="badge bg-primary">{{ course.level }}</span>
+                <span class="badge bg-light text-dark">Duration: {{ course.duration }}</span>
+            </div>
+
+            <h5 class="fw-bold mb-3">Course Content</h5>
+            <div class="list-group">
+                {% for chapter in course.chapters %}
+                <a href="{% url chapter.route %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <span>{{ chapter.title }}</span>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
