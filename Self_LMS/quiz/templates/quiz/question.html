@@ -1,0 +1,117 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>True/False Quiz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        
+        :root {
+            --primary: #6366f1;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #f3e7e9 0%, #e6f0ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.15);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .question-number {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+        }
+        
+        .question-text {
+            font-size: 1.35rem;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+        
+        .options {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+        
+        .option {
+            border: 3px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+        
+        .option.true { border-color: #22c55e; background: #f0fdf4; }
+        .option.false { border-color: #ef4444; background: #fef2f2; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <div class="question-number">Question {{ question_id }}</div>
+            <div class="question-text">{{ question.text }}</div>
+        </div>
+        
+        {% if is_preview %}
+<form method="post" action="{% url 'quiz_preview_submit' %}">
+{% else %}
+<form method="post" action="{% url 'submit_answer' question_id %}">
+{% endif %}
+            {% csrf_token %}
+            
+            <div class="options">
+                <label class="option true">
+                    <input type="radio" name="answer" value="True" required style="display:none;">
+                    <div>✅ TRUE</div>
+                </label>
+                
+                <label class="option false">
+                    <input type="radio" name="answer" value="False" required style="display:none;">
+                    <div>❌ FALSE</div>
+                </label>
+            </div>
+            
+            <div style="padding:1.5rem;text-align:center;">
+                <button type="submit" style="background:#6366f1;color:white;border:none;padding:14px 40px;border-radius:9999px;font-size:1.1rem;cursor:pointer;">
+                    Submit Answer
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

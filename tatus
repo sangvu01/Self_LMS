@@ -1,0 +1,54 @@
+[33mcommit 11476a097bae9dc9fa05a321031987357c68292f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/my-new-quiz-app[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Merge: 535d014 1720cdd
+Author: sangvu01 <vuminhsang01@gmail.com>
+Date:   Mon Jul 20 09:20:10 2026 +0700
+
+    Merge pull request #2 from sangvu01/feature/documents
+    
+    Feature/documents
+
+[33mcommit 1720cdd88f461acc942f4d181d38b2e8e561ee03[m
+Merge: 0d7d5e3 813f380
+Author: sangvu01 <vuminhsang01@gmail.com>
+Date:   Mon Jul 20 08:52:55 2026 +0700
+
+    Merge feature/documents into homepage
+
+[33mcommit 0d7d5e3ad0c85b8808c9e76db4d7ffc398cd2a9b[m
+Author: sangvu01 <vuminhsang01@gmail.com>
+Date:   Mon Jul 20 08:37:17 2026 +0700
+
+    rename template
+
+[33mcommit 535d014bf9aa28240b0f6a0fd46858789737eb0a[m
+Merge: b3695f8 813f380
+Author: sangvu01 <vuminhsang01@gmail.com>
+Date:   Fri Jul 17 15:00:28 2026 +0700
+
+    Merge pull request #1 from sangvu01/feature/documents
+    
+    Feature/documents
+
+[33mcommit 813f380d3be212bf8caee229050dc93702c32083[m
+Author: sangvu01 <vuminhsang01@gmail.com>
+Date:   Thu Jul 16 16:57:14 2026 +0700
+
+    Fix: add chap 5 & 6 to sidebar in fullscreen
+
+[33mcommit 7dc5c06dac7e225b83788be4ab952fca6f578908[m
+Author: sangvu01 <vuminhsang01@gmail.com>
+Date:   Thu Jul 16 16:28:40 2026 +0700
+
+    Define chapters' htmls
+
+[33mcommit 343fcb98b9dfc01c18f8a1390053e93e08f5815b[m[33m ([m[1;31morigin/homepage[m[33m, [m[1;32mhomepage[m[33m)[m
+Author: William Nguyen <quangnguyen250306@gmail.com>
+Date:   Thu Jul 16 15:02:26 2026 +0700
+
+    Add home page
+
+[33mcommit b3695f843f54b2e90a241c0c54c6fe548b9fd9a4[m
+Author: sangvu01 <vuminhsang01@gmail.com>
+Date:   Fri Jul 10 15:01:11 2026 +0700
+
+    first commit
