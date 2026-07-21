@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ chapter.title }}{% endblock %}
+
+{% block content %}
+<div class="p-4">
+    <div class="mb-4">
+        <a href="{% url 'course_detail' course.slug %}" class="btn btn-outline-secondary btn-sm mb-3">← Back to Course</a>
+        <h2 class="fw-bold mb-2">{{ chapter.title }}</h2>
+        <p class="text-muted mb-0">{{ chapter.summary }}</p>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="mb-4">
+                <span class="badge bg-primary">{{ course.title }}</span>
+            </div>
+            <div class="content">
+                {{ chapter.content|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

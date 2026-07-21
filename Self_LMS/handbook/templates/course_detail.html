@@ -17,12 +17,20 @@
                 <span class="badge bg-light text-dark">Duration: {{ course.duration }}</span>
             </div>
 
-            <h5 class="fw-bold mb-3">Course Content</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Course Content</h5>
+                <span class="badge bg-secondary">{{ course.chapters|length }} chapters</span>
+            </div>
             <div class="list-group">
                 {% for chapter in course.chapters %}
-                <a href="{% url chapter.route %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                    <span>{{ chapter.title }}</span>
-                    <i class="bi bi-chevron-right"></i>
+                <a href="{% url 'chapter_detail' course.slug chapter.slug %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <div class="fw-semibold">{{ chapter.title }}</div>
+                            <small class="text-muted">{{ chapter.description }}</small>
+                        </div>
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
                 </a>
                 {% endfor %}
             </div>

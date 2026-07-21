@@ -35,8 +35,8 @@
 
         </button>
 
-
-           <a class="navbar-brand fw-bold" href="{% url 'base' %}">
+        <a href="{% url 'courses' %}" class="navbar-brand fw-bold"> My Courses</a>
+           <a class="navbar-brand fw-bold" href="{% url 'home' %}">
 
 <i class="bi bi-book-half"></i>
 
@@ -67,37 +67,18 @@ Self LMS
     <div class="offcanvas-body">
 
         <div class="list-group">
-
-            <a href="{% url 'c1' %}"
-               class="list-group-item list-group-item-action {% if page == 'c1' %}active{% endif %}">
-                Chapter 1
-            </a>
-
-            <a href="{% url 'c2' %}"
-               class="list-group-item list-group-item-action {% if page == 'c2' %}active{% endif %}">
-                Chapter 2
-            </a>
-
-            <a href="{% url 'c3' %}"
-               class="list-group-item list-group-item-action {% if page == 'c3' %}active{% endif %}">
-                Chapter 3
-            </a>
-
-            <a href="{% url 'c4' %}"
-               class="list-group-item list-group-item-action {% if page == 'c4' %}active{% endif %}">
-                Chapter 4
-            </a>
-
-            <a href="{% url 'c5' %}"
-               class="list-group-item list-group-item-action {% if page == 'c5' %}active{% endif %}">
-                Chapter 5
-            </a>
-
-            <a href="{% url 'c6' %}"
-               class="list-group-item list-group-item-action {% if page == 'c6' %}active{% endif %}">
-                Chapter 6
-            </a>
-
+            {% if course %}
+                {% for chapter_item in course.chapters %}
+                    <a href="{% url 'chapter_detail' course.slug chapter_item.slug %}"
+                       class="list-group-item list-group-item-action {% if chapter and chapter.slug == chapter_item.slug %}active{% endif %}">
+                        {{ chapter_item.title }}
+                    </a>
+                {% endfor %}
+            {% else %}
+                <a href="{% url 'courses' %}" class="list-group-item list-group-item-action">
+                    Go to courses
+                </a>
+            {% endif %}
         </div>
 
     </div>
@@ -111,6 +92,32 @@ Self LMS
         <!-- Sidebar -->
 
         <aside class="col-md-3 col-lg-2 d-none d-md-block sidebar">
+
+            <h5 class="fw-bold mb-4">
+
+              <i class="bi bi-journal-bookmark"></i>
+
+                Documentation
+
+            </h5>
+
+            <div class="list-group">
+            {% if course %}
+                {% for chapter_item in course.chapters %}
+                    <a href="{% url 'chapter_detail' course.slug chapter_item.slug %}"
+                       class="list-group-item list-group-item-action {% if chapter and chapter.slug == chapter_item.slug %}active{% endif %}">
+                        {{ chapter_item.title }}
+                    </a>
+                {% endfor %}
+            {% else %}
+                <a href="{% url 'courses' %}" class="list-group-item list-group-item-action">
+                    Go to courses
+                </a>
+            {% endif %}
+        </div>
+
+        </aside>
+        {% comment %} <aside class="col-md-3 col-lg-2 d-none d-md-block sidebar">
 
             <h5 class="fw-bold mb-4">
 
@@ -184,7 +191,7 @@ Self LMS
 
             </div>
 
-        </aside>
+        </aside> {% endcomment %}
 
         <!-- Main -->
 
