@@ -1,0 +1,1 @@
+$('#btn-test').onclick(() => {alert("scgidj")})
