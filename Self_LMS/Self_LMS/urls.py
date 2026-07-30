@@ -21,5 +21,4 @@ from handbook import views as handbook
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("handbook.urls")),
-    path('quiz/', include('quiz.urls')),
 ]

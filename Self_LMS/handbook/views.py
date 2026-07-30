@@ -1,5 +1,5 @@
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 COURSES = [
     {
@@ -8,6 +8,66 @@ COURSES = [
         "description": "Khóa học nền tảng về trí tuệ nhân tạo, tập trung vào prompt, mô hình và ứng dụng trong doanh nghiệp.",
         "duration": "6 weeks",
         "level": "Beginner",
+        "quizs": [
+    {
+        "quizid": 1,
+        "question": "What does AI stand for?",
+        "options": [
+            "Artificial Intelligence",
+            "Automated Information",
+            "Advanced Internet",
+            "Applied Innovation"
+        ],
+        "answer": "Artificial Intelligence",
+        "explanation": "AI stands for Artificial Intelligence. It refers to systems that can perform tasks that normally require human intelligence."
+    },
+    {
+        "quizid": 2,
+        "question": "Machine Learning is a subset of Artificial Intelligence.",
+        "options": [
+            "True",
+            "False"
+        ],
+        "answer": "True",
+        "explanation": "Yes, Machine Learning is a subset of AI that focuses on systems learning from data without being explicitly programmed."
+    },
+    {
+        "quizid": 3,
+        "question": "Which of the following is a popular Python library for Machine Learning?",
+        "options": [
+            "NumPy",
+            "Pandas",
+            "Scikit-learn",
+            "All of the above"
+        ],
+        "answer": "All of the above",
+        "explanation": "NumPy, Pandas, and Scikit-learn are all widely used libraries in Machine Learning with Python."
+    },
+    {
+        "quizid": 4,
+        "question": "What is the main purpose of Prompt Engineering?",
+        "options": [
+            "To design computer hardware",
+            "To write clear and effective instructions for AI models",
+            "To create mobile applications",
+            "To manage databases"
+        ],
+        "answer": "To write clear and effective instructions for AI models",
+        "explanation": "Prompt Engineering is the practice of crafting clear and effective prompts so that AI models can generate better and more accurate responses."
+    },
+    {
+        "quizid": 5,
+        "question": "Which of the following is an important principle of Responsible AI?",
+        "options": [
+            "Always use the fastest model",
+            "Ignore data privacy",
+            "Check for bias and protect user privacy",
+            "Only use AI for entertainment"
+        ],
+        "answer": "Check for bias and protect user privacy",
+        "explanation": "Responsible AI focuses on fairness, transparency, and protecting user privacy while reducing harmful bias in AI systems."
+    }
+],
         "chapters": [
             {
                 "slug": "intro-ai",
@@ -101,6 +161,7 @@ COURSES = [
 
 
 def home(req):
+    # return render(req, 'quizs/quiz.html')
     return render(req, 'home.html')
 
 
@@ -134,6 +195,54 @@ def chapter_detail(req, course_slug, chapter_slug):
 
     return render(req, 'chapter.html', {"course": course, "chapter": chapter})
 
+def quiz_id(req, course_slug, quiz_id):
+    course = get_course(course_slug)
+    if course is None:
+        raise Http404("Course not found")
+
+    quiz = next(
+        (item for item in course.get("quizs", []) if item["quizid"] == quiz_id),
+        None
+    )
+    if quiz is None:
+        raise Http404("Quiz not found")
+
+    # Xử lý retake
+    if req.GET.get("retake") == "1":
+        req.session.pop("quiz_answers", None)
+        req.session.modified = True
+        req.session.save()
+
+    if "quiz_answers" not in req.session:
+        req.session["quiz_answers"] = {}
+
+    previous_answer = req.session["quiz_answers"].get(str(quiz_id), {}).get("selected")
+
+    # ========== Đặt answered_ids ở đây (ngoài tất cả if) ==========
+    answered_ids = [int(qid) for qid in req.session.get("quiz_answers", {}).keys()]
+
+    if req.method == "POST":
+        selected = req.POST.get("selected_answer")
+        is_correct = selected == quiz["answer"]
+
+        req.session["quiz_answers"][str(quiz_id)] = {
+            "selected": selected,
+            "correct": is_correct
+        }
+        req.session.modified = True
+
+        total_quizzes = len(course.get("quizs", []))
+        if quiz_id >= total_quizzes:
+            return redirect("quiz_result", course_slug=course_slug)
+        else:
+            return redirect("quiz_detail", course_slug=course_slug, quiz_id=quiz_id + 1)
+
+    return render(req, 'quizs/quiz.html', {
+        "course": course,
+        "quiz": quiz,
+        "previous_answer": previous_answer,
+        "answered_ids": answered_ids,
+    })
 
 def c1(req):
     return render(req, 'docs/chap1.html', {
@@ -168,4 +277,70 @@ def c5(req):
 def c6(req):
     return render(req, 'docs/chap6.html', {
         "page": "c6"
+    })
+
+def quiz_result(req, course_slug):
+    course = get_course(course_slug)
+    if course is None:
+        raise Http404("Course not found")
+
+    answers = req.session.get("quiz_answers", {})
+    quizzes = course.get("quizs", [])
+    total = len(quizzes)
+    correct = sum(1 for a in answers.values() if a.get("correct") is True)
+
+    score = round((correct / total) * 100) if total > 0 else 0
+    passed = score > 50
+
+    # Tạo danh sách review chi tiết
+    review = []
+    for quiz in quizzes:
+        qid = str(quiz["quizid"])
+        user_data = answers.get(qid, {})
+        selected = user_data.get("selected")
+        is_correct = user_data.get("correct", False)
+
+        review.append({
+            "quizid": quiz["quizid"],
+            "question": quiz["question"],
+            "options": quiz["options"],
+            "correct_answer": quiz["answer"],
+            "selected": selected,
+            "is_correct": is_correct,
+            "explanation": quiz.get("explanation", ""),
+        })
+
+    # Xóa session sau khi đã lấy dữ liệu
+    req.session.pop("quiz_answers", None)
+    req.session.modified = True
+
+    return render(req, 'quizs/result.html', {
+        "course": course,
+        "score": score,
+        "correct": correct,
+        "total": total,
+        "passed": passed,
+        "review": review,   # ← quan trọng
+    })
+
+def retake_quiz(req, course_slug):
+    # Xóa sạch đáp án
+    req.session.pop("quiz_answers", None)
+    req.session.modified = True
+    req.session.save()
+
+    return redirect(f"/course/{course_slug}/quiz/1/?retake=1")
+
+def start_quiz(req, course_slug):
+    course = get_course(course_slug)
+    if course is None:
+        raise Http404("Course not found")
+
+    total_questions = len(course.get("quizs", []))
+    
+    return render(req, 'quizs/start_quiz.html', {
+        "course": course,
+        "total_questions": total_questions,
+        "duration": 5,          # số phút
+        "max_score": total_questions * 10,  # mỗi câu 10 điểm
     })

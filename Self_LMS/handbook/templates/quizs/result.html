@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Quiz Result{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 px-6 py-16">
+  <div class="max-w-3xl mx-auto">
+
+    <!-- Score Card -->
+    {% if passed %}
+    <div class="bg-white rounded-3xl shadow-xl border border-emerald-200 p-10 text-center mb-10">
+      <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-emerald-100 flex items-center justify-center">
+        <span class="text-5xl">🎉</span>
+      </div>
+      <h1 class="text-4xl font-bold text-emerald-700 mb-3">You have passed the exam!</h1>
+      <p class="text-xl text-slate-600 mb-6">
+        Congratulations! Your score is <span class="font-bold text-emerald-600">{{ score }}%</span>
+      </p>
+      <div class="inline-block px-6 py-3 bg-emerald-100 text-emerald-700 rounded-full font-semibold mb-8">
+        Score: {{ correct }} / {{ total }} correct
+      </div>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="{% url 'courses' %}" 
+           class="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-semibold transition">
+          Back to Courses
+        </a>
+        <button onclick="retakeQuiz()" 
+                class="px-8 py-4 border border-slate-300 hover:bg-slate-50 rounded-2xl font-semibold transition">
+          Retake Quiz
+        </button>
+      </div>
+    </div>
+    {% else %}
+    <div class="bg-white rounded-3xl shadow-xl border border-red-200 p-10 text-center mb-10">
+      <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-red-100 flex items-center justify-center">
+        <span class="text-5xl">😢</span>
+      </div>
+      <h1 class="text-4xl font-bold text-red-700 mb-3">You have failed the exam</h1>
+      <p class="text-xl text-slate-600 mb-6">
+        Your score is <span class="font-bold text-red-600">{{ score }}%</span>.  
+        You need more than 50% to pass.
+      </p>
+      <div class="inline-block px-6 py-3 bg-red-100 text-red-700 rounded-full font-semibold mb-8">
+        Score: {{ correct }} / {{ total }} correct
+      </div>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button onclick="retakeQuiz()" 
+                class="px-8 py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-semibold transition">
+          Retake Quiz
+        </button>
+        <a href="{% url 'courses' %}" 
+           class="px-8 py-4 border border-slate-300 hover:bg-slate-50 rounded-2xl font-semibold transition">
+          Back to Courses
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Review Answers -->
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+      <h2 class="text-2xl font-bold text-slate-800 mb-8">Review Your Answers</h2>
+
+      <div class="space-y-10">
+        {% for item in review %}
+        <div class="border-b border-slate-100 pb-8 last:border-0 last:pb-0">
+          <!-- Question -->
+          <div class="flex items-start gap-4 mb-5">
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-700">
+              {{ item.quizid }}
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-800">{{ item.question }}</h3>
+              {% if item.is_correct %}
+                <span class="inline-block mt-1 text-sm font-medium text-emerald-600">✓ Correct</span>
+              {% else %}
+                <span class="inline-block mt-1 text-sm font-medium text-red-600">✗ Incorrect</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Options -->
+          <div class="space-y-3 ml-14">
+            {% for option in item.options %}
+              {% if option == item.correct_answer %}
+                <!-- Đáp án đúng → luôn tô xanh -->
+                <div class="flex items-center gap-3 px-5 py-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50">
+                  <div class="w-5 h-5 rounded-full border-2 border-emerald-600 bg-emerald-600 flex items-center justify-center">
+                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <span class="font-medium text-emerald-800">{{ option }}</span>
+                  <span class="ml-auto text-xs font-semibold text-emerald-600">Correct Answer</span>
+                </div>
+
+              {% elif option == item.selected %}
+                <!-- User chọn sai → tô đỏ -->
+                <div class="flex items-center gap-3 px-5 py-3.5 rounded-2xl border-2 border-red-400 bg-red-50">
+                  <div class="w-5 h-5 rounded-full border-2 border-red-500 bg-red-500 flex items-center justify-center">
+                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </div>
+                  <span class="font-medium text-red-800">{{ option }}</span>
+                  <span class="ml-auto text-xs font-semibold text-red-600">Your Answer</span>
+                </div>
+
+              {% else %}
+                <!-- Các đáp án còn lại -->
+                <div class="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+                  <div class="w-5 h-5 rounded-full border-2 border-slate-300"></div>
+                  <span class="text-slate-600">{{ option }}</span>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <!-- Explanation -->
+          {% if item.explanation %}
+          <div class="mt-4 ml-14 p-4 bg-blue-50 border border-blue-100 rounded-xl">
+            <p class="text-sm text-blue-800">
+              <span class="font-semibold">💡 Explanation:</span> {{ item.explanation }}
+            </p>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function retakeQuiz() {
+    sessionStorage.removeItem("quiz_timer_{{ course.slug }}");
+    sessionStorage.clear();
+    window.location.href = "{% url 'retake_quiz' course.slug %}";
+  }
+</script>
+{% endblock %}
