@@ -200,6 +200,10 @@ def quiz_id(req, course_slug, quiz_id):
     if course is None:
         raise Http404("Course not found")
 
+    # Nếu đã nộp bài rồi → không cho vào lại câu hỏi
+    if req.session.get(f"quiz_finished_{course_slug}"):
+        return redirect("quiz_result", course_slug=course_slug)
+
     quiz = next(
         (item for item in course.get("quizs", []) if item["quizid"] == quiz_id),
         None
@@ -210,6 +214,7 @@ def quiz_id(req, course_slug, quiz_id):
     # Xử lý retake
     if req.GET.get("retake") == "1":
         req.session.pop("quiz_answers", None)
+        req.session.pop(f"quiz_finished_{course_slug}", None)
         req.session.modified = True
         req.session.save()
 
@@ -217,32 +222,50 @@ def quiz_id(req, course_slug, quiz_id):
         req.session["quiz_answers"] = {}
 
     previous_answer = req.session["quiz_answers"].get(str(quiz_id), {}).get("selected")
-
-    # ========== Đặt answered_ids ở đây (ngoài tất cả if) ==========
     answered_ids = [int(qid) for qid in req.session.get("quiz_answers", {}).keys()]
 
     if req.method == "POST":
         selected = req.POST.get("selected_answer")
-        is_correct = selected == quiz["answer"]
+        action = req.POST.get("action")   # "next" hoặc "submit"
+        goto = req.POST.get("goto")       # câu muốn nhảy đến từ navigator
 
-        req.session["quiz_answers"][str(quiz_id)] = {
-            "selected": selected,
-            "correct": is_correct
-        }
-        req.session.modified = True
+        # Lưu đáp án hiện tại (nếu có chọn)
+        if selected:
+            is_correct = selected == quiz["answer"]
+            req.session["quiz_answers"][str(quiz_id)] = {
+                "selected": selected,
+                "correct": is_correct
+            }
+            req.session.modified = True
 
-        total_quizzes = len(course.get("quizs", []))
-        if quiz_id >= total_quizzes:
+        # 1. Bấm Submit Quiz → nộp bài ngay
+        if action == "submit":
             return redirect("quiz_result", course_slug=course_slug)
-        else:
-            return redirect("quiz_detail", course_slug=course_slug, quiz_id=quiz_id + 1)
 
-    return render(req, 'quizs/quiz.html', {
+        # 2. Bấm số câu hỏi ở Navigator → chuyển đến câu đó
+        if goto:
+            return redirect("quiz_detail", course_slug=course_slug, quiz_id=int(goto))
+
+        # 3. Bấm Next → sang câu tiếp theo
+        total_quizzes = len(course.get("quizs", []))
+        if quiz_id < total_quizzes:
+            return redirect("quiz_detail", course_slug=course_slug, quiz_id=quiz_id + 1)
+        else:
+            return redirect("quiz_result", course_slug=course_slug)
+
+    response = render(req, 'quizs/quiz.html', {
         "course": course,
         "quiz": quiz,
         "previous_answer": previous_answer,
         "answered_ids": answered_ids,
     })
+
+    # Chống cache
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+
+    return response
 
 def c1(req):
     return render(req, 'docs/chap1.html', {
@@ -292,7 +315,7 @@ def quiz_result(req, course_slug):
     score = round((correct / total) * 100) if total > 0 else 0
     passed = score > 50
 
-    # Tạo danh sách review chi tiết
+    # Tạo review
     review = []
     for quiz in quizzes:
         qid = str(quiz["quizid"])
@@ -310,22 +333,34 @@ def quiz_result(req, course_slug):
             "explanation": quiz.get("explanation", ""),
         })
 
-    # Xóa session sau khi đã lấy dữ liệu
+    # Đánh dấu đã hoàn thành quiz
+    req.session[f"quiz_finished_{course_slug}"] = True
+
+    # Xóa đáp án
     req.session.pop("quiz_answers", None)
     req.session.modified = True
 
-    return render(req, 'quizs/result.html', {
+    response = render(req, 'quizs/result.html', {
         "course": course,
         "score": score,
         "correct": correct,
         "total": total,
         "passed": passed,
-        "review": review,   # ← quan trọng
+        "review": review,
     })
 
+    # Chống cache
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+
+    return response
+
+
 def retake_quiz(req, course_slug):
-    # Xóa sạch đáp án
+    # Xóa đáp án + cờ đã hoàn thành
     req.session.pop("quiz_answers", None)
+    req.session.pop(f"quiz_finished_{course_slug}", None)
     req.session.modified = True
     req.session.save()
 

@@ -136,5 +136,18 @@
     sessionStorage.clear();
     window.location.href = "{% url 'retake_quiz' course.slug %}";
   }
+
+  // Chống bấm Back về trang làm bài
+  history.pushState(null, null, location.href);
+  window.onpopstate = function () {
+    history.go(1);           // đẩy về phía trước
+  };
+
+  // Phòng trường hợp trình duyệt dùng back-forward cache
+  window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+      window.location.reload();
+    }
+  });
 </script>
 {% endblock %}
