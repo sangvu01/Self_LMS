@@ -9,7 +9,7 @@ urlpatterns = [
 
     path('base', views.base, name = 'base'),
 
-    path('courses', views.courses, name='courses'),
+    path('courses/', views.courses, name='courses'),
 
     path('courses/<slug:course_slug>/', views.course_detail, name='course_detail'),
     path('courses/<slug:course_slug>/<slug:chapter_slug>/', views.chapter_detail, name='chapter_detail'),

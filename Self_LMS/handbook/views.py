@@ -157,7 +157,8 @@ def base(req):
 
 
 def courses(req):
-    return render(req, 'courses.html', {"courses": COURSES})
+    # return render(req, 'courses.html', {"courses": COURSES})
+    return render(req, "courses.html")
 
 
 def get_course(course_slug):
