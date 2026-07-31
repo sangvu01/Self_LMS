@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from . import views as views
+from .views import CourseListAPIView, CourseDetailAPIView
 urlpatterns = [
     # path('admin/', admin.site.urls),
 
@@ -12,19 +13,6 @@ urlpatterns = [
 
     path('courses/<slug:course_slug>/', views.course_detail, name='course_detail'),
     path('courses/<slug:course_slug>/<slug:chapter_slug>/', views.chapter_detail, name='chapter_detail'),
-    # path('c1', views.c1, name = 'c1'),
-
-    # path('c2', views.c2, name = 'c2'),
-
-    # path('c3', views.c3, name = 'c3'),
-
-    # path('c4', views.c4, name = 'c4'),
-
-    # path('c5', views.c5, name = 'c5'),
-
-    # path('c6', views.c6, name = 'c6'),
-
-    
-
-
+    path("api/courses/", CourseListAPIView.as_view(), name="api-courses"),
+    path("api/courses/<slug:course_slug>/", CourseDetailAPIView.as_view(), name="api-courses-id"),
 ]
