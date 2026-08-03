@@ -1,1 +1,1 @@
-$('#btn-test').onclick(() => {alert("scgidj")})
+// $('#btn-test').onclick(() => {alert("scgidj")})
