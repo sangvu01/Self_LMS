@@ -1,6 +1,54 @@
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.views.generic import ListView
+from .models import Course
+from .serializers import CourseSerializer
+from rest_framework import status
+# class CourseListAPIView(ListView):
+class CourseListAPIView(APIView):
 
+    def get(self, request):
+        courses = Course.objects.all()
+        # c = Course.objects.get(id = request)
+        serializer = CourseSerializer(courses, many=True)
+        return Response(serializer.data)
+
+    def post(self, req):
+        s = CourseSerializer(data=req.data)
+        if (s.is_valid()):
+            # newcourse = Course(s)
+            s.save()
+
+            return Response(s.data, status=status.HTTP_201_CREATED)
+        return Response(s.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CourseDetailAPIView(APIView):
+    def get(self, req, course_slug):
+        c = get_object_or_404(Course, slug=course_slug)
+        #Mới test: c = Course.objects.filter(slug=course_slug)[0] cũng ra giống get(slug=course_slug)
+        # c = Course.objects.filter(slug=course_slug).first()
+        s = CourseSerializer(c)
+        
+        return Response(s.data)
+"""
+{"id" : 5}
+"""
+"""
+from django.views.generic import ListView
+from .models import Course
+
+
+class CourseListView(ListView):
+    model = Course
+    template_name = "courses/course_list.html"
+    context_object_name = "courses"
+
+    def get_queryset(self):
+        return Course.objects.all()
+        """
+    
 COURSES = [
     {
         "slug": "ai-fundamentals",
@@ -120,7 +168,8 @@ def base(req):
 
 
 def courses(req):
-    return render(req, 'courses.html', {"courses": COURSES})
+    # return render(req, 'courses.html', {"courses": COURSES})
+    return render(req, "courses.html")
 
 
 def get_course(course_slug):
@@ -133,7 +182,7 @@ def course_detail(req, course_slug):
         raise Http404("Course not found")
     return render(req, 'course_detail.html', {"course": course})
 
-
+#serializers.py : class để validdate dữ liệu
 def chapter_detail(req, course_slug, chapter_slug):
     course = get_course(course_slug)
     if course is None:
@@ -146,37 +195,3 @@ def chapter_detail(req, course_slug, chapter_slug):
     return render(req, 'chapter.html', {"course": course, "chapter": chapter})
 
 
-def c1(req):
-    return render(req, 'docs/chap1.html', {
-        "page": "c1"
-    })
-
-
-def c2(req):
-    return render(req, 'docs/chap2.html', {
-        "page": "c2"
-    })
-
-
-def c3(req):
-    return render(req, 'docs/chap3.html', {
-        "page": "c3"
-    })
-
-
-def c4(req):
-    return render(req, 'docs/chap4.html', {
-        "page": "c4"
-    })
-
-
-def c5(req):
-    return render(req, 'docs/chap5.html', {
-        "page": "c5"
-    })
-
-
-def c6(req):
-    return render(req, 'docs/chap6.html', {
-        "page": "c6"
-    })

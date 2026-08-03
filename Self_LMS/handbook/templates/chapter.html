@@ -3,6 +3,7 @@
 {% block title %}{{ chapter.title }}{% endblock %}
 
 {% block content %}
+{% comment %} <button type="submit" form="create-user" class="btn btn-danger" id="btn-test">test</button> {% endcomment %}
 <div class="p-4">
     <div class="mb-4">
         <a href="{% url 'course_detail' course.slug %}" class="btn btn-outline-secondary btn-sm mb-3">← Back to Course</a>
@@ -22,4 +23,14 @@
     </div>
 </div>
 {% endblock %}
-{% block footer %} CHAPTER {{chapter.id}} {% endblock footer %}
+{% comment %} {% block jsfooter %}
+    <script>
+        $('#btn-test').on('click', function () {
+            alert("scgidj")
+        })
+    </script>
+{% endblock jsfooter %} {% endcomment %}
+{% block footer %}
+    
+{% endblock footer %}
+
