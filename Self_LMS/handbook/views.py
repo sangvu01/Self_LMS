@@ -163,13 +163,20 @@ def courses(req):
 
 def get_course(course_slug):
     return next((item for item in COURSES if item["slug"] == course_slug), None)
+    # v = CourseDetailAPIView()
+    # return v.get()
 
 
 def course_detail(req, course_slug):
-    course = get_course(course_slug)
-    if course is None:
-        raise Http404("Course not found")
-    return render(req, 'course_detail.html', {"course": course})
+    # v = CourseDetailAPIView()
+    # # return v.get()
+    
+    # course = v.get(req, course_slug)
+    # # course = get_course(course_slug)
+    # if course is None:
+    #     raise Http404("Course not found")
+    return render(req, 'course_detail.html', {"course_slug": course_slug})
+    # return render(req, 'course_detail.html', {"course": course})
 
 #serializers.py : class để validdate dữ liệu
 def chapter_detail(req, course_slug, chapter_slug):

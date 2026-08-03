@@ -36,13 +36,14 @@
         </button>
 
         <a href="{% url 'courses' %}" class="navbar-brand fw-bold"> My Courses</a>
-           <a class="navbar-brand fw-bold" href="{% url 'home' %}">
 
-<i class="bi bi-book-half"></i>
+        <a class="navbar-brand fw-bold" href="{% url 'home' %}">
 
-Self LMS
+            <i class="bi bi-book-half"></i>
 
-</a>
+            Self LMS
+
+        </a>
 
 
     </div>
@@ -52,7 +53,7 @@ Self LMS
     class="offcanvas offcanvas-start"
     tabindex="-1"
     id="sidebar">
-
+    {% comment %} SIDEBAR KHI TRANG HẸP {% endcomment %}
     <div class="offcanvas-header">
 
         <h5>Documentation</h5>
@@ -65,21 +66,23 @@ Self LMS
     </div>
 
     <div class="offcanvas-body">
-
-        <div class="list-group">
-            {% if course %}
-                {% for chapter_item in course.chapters %}
-                    <a href="{% url 'chapter_detail' course.slug chapter_item.slug %}"
-                       class="list-group-item list-group-item-action {% if chapter and chapter.slug == chapter_item.slug %}active{% endif %}">
-                        {{ chapter_item.title }}
+        {% block sidebar_small_width %}
+            <div class="list-group">
+                {% if course %}
+                    {% for chapter_item in course.chapters %}
+                        <a href="{% url 'chapter_detail' course.slug chapter_item.slug %}"
+                            class="list-group-item list-group-item-action {% if chapter and chapter.slug == chapter_item.slug %}active{% endif %}">
+                                {{ chapter_item.title }}
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <a href="{% url 'courses' %}" class="list-group-item list-group-item-action">
+                        Go to courses
                     </a>
-                {% endfor %}
-            {% else %}
-                <a href="{% url 'courses' %}" class="list-group-item list-group-item-action">
-                    Go to courses
-                </a>
-            {% endif %}
-        </div>
+                {% endif %}
+                
+            </div>
+        {% endblock sidebar_small_width %}
 
     </div>
 
@@ -90,9 +93,9 @@ Self LMS
     <div class="row">
 
         <!-- Sidebar -->
-
+        {% comment %} SIDEBAR KHI TRANG CÒN RỘNG {% endcomment %}
         <aside class="col-md-3 col-lg-2 d-none d-md-block sidebar">
-
+            
             <h5 class="fw-bold mb-4">
 
               <i class="bi bi-journal-bookmark"></i>
@@ -100,21 +103,22 @@ Self LMS
                 Documentation
 
             </h5>
-
-            <div class="list-group">
-            {% if course %}
-                {% for chapter_item in course.chapters %}
-                    <a href="{% url 'chapter_detail' course.slug chapter_item.slug %}"
-                       class="list-group-item list-group-item-action {% if chapter and chapter.slug == chapter_item.slug %}active{% endif %}">
-                        {{ chapter_item.title }}
-                    </a>
-                {% endfor %}
-            {% else %}
-                <a href="{% url 'courses' %}" class="list-group-item list-group-item-action">
-                    Go to courses
-                </a>
-            {% endif %}
-        </div>
+            {% block sidebar_big_width %}
+                <div class="list-group">
+                    {% if course %}
+                        {% for chapter_item in course.chapters %}
+                            <a href="{% url 'chapter_detail' course.slug chapter_item.slug %}"
+                                class="list-group-item list-group-item-action {% if chapter and chapter.slug == chapter_item.slug %}active{% endif %}">
+                                    {{ chapter_item.title }}
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <a href="{% url 'courses' %}" class="list-group-item list-group-item-action">
+                            Go to courses
+                        </a>
+                    {% endif %}
+                </div>
+            {% endblock sidebar_big_width %}
 
         </aside>
         {% comment %} <aside class="col-md-3 col-lg-2 d-none d-md-block sidebar">
