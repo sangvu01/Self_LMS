@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Start Quiz - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 flex items-center justify-center px-6 py-16">
+  <div class="max-w-2xl w-full">
+
+    <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-10 text-center">
+      
+      <!-- Icon -->
+      <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-blue-100 flex items-center justify-center">
+        <span class="text-4xl">📝</span>
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-3xl font-bold text-slate-800 mb-3">
+        {{ course.title }}
+      </h1>
+      <p class="text-slate-500 mb-10">
+        Sẵn sàng kiểm tra kiến thức của bạn?
+      </p>
+
+      <!-- Quiz Info -->
+      <div class="grid grid-cols-2 gap-6 mb-10 text-left">
+        <div class="bg-slate-50 rounded-2xl p-5">
+          <div class="text-sm text-slate-500 mb-1">Chủ đề</div>
+          <div class="font-semibold text-slate-800">{{ course.title }}</div>
+        </div>
+
+        <div class="bg-slate-50 rounded-2xl p-5">
+          <div class="text-sm text-slate-500 mb-1">Số câu hỏi</div>
+          <div class="font-semibold text-slate-800">{{ total_questions }} câu</div>
+        </div>
+
+        <div class="bg-slate-50 rounded-2xl p-5">
+          <div class="text-sm text-slate-500 mb-1">Thời gian</div>
+          <div class="font-semibold text-slate-800">{{ duration }} phút</div>
+        </div>
+
+        <div class="bg-slate-50 rounded-2xl p-5">
+          <div class="text-sm text-slate-500 mb-1">Điểm tối đa</div>
+          <div class="font-semibold text-slate-800">{{ max_score }} điểm</div>
+        </div>
+      </div>
+
+      <!-- Start Button -->
+      <a href="/course/{{ course.slug }}/quiz/1/" 
+         class="inline-block w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-lg font-semibold rounded-2xl shadow-md transition-all">
+        Bắt đầu làm bài →
+      </a>
+
+      <p class="text-sm text-slate-400 mt-6">
+        Bạn có thể quay lại các câu hỏi trước đó trong lúc làm bài.
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

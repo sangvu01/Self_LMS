@@ -1,8 +1,8 @@
 index = () => {
     console.log("courses_detail.js/index() START");
-    const slug = $("#course-detail").data("course-slug");
-    const url = API.course.replace("COURSE_SLUG", slug)
-    console.log(slug)
+    const courseSlug = $("#course-detail").data("course-slug");
+    const url = API.course.replace("COURSE_SLUG", courseSlug)
+    console.log(courseSlug)
     // $(() => {
         
     // })
@@ -14,7 +14,7 @@ index = () => {
             const active = (chapter.slug === data.current_chapter ? "active" : "");
 
             chapterHTML += `
-                <a href="/courses/${slug}/${chapter.slug}/" class="list-group-item list-group-item-action">
+                <a href="/courses/${courseSlug}/${chapter.slug}/" class="list-group-item list-group-item-action">
                     <div class="d-flex justify-content-between align-items-start gap-3">
                         <div>
                             <div class="fw-semibold">${ chapter.title }</div>
@@ -25,14 +25,20 @@ index = () => {
                 </a>
             `
             sidebar += `
-                <a href="/courses/${slug}/${chapter.slug}/"
+                <a href="/courses/${courseSlug}/${chapter.slug}/"
                     class="list-group-item list-group-item-action ${active}">
                         ${chapter.title}
                 </a>
             `
         });
-        $("#sidebar_small_width").append(`${sidebar}`);
-        $("#sidebar_big_width").append(`${sidebar}`);
+        $("#sidebar_small_width").append(`${sidebar}` + `<a href="/course/${courseSlug}/start/" 
+   class="list-group-item list-group-item-action">
+    📝 Start Quiz
+</a>`);
+        $("#sidebar_big_width").append(`${sidebar}` + `<a href="/course/${courseSlug}/start/" 
+   class="list-group-item list-group-item-action">
+    📝 Start Quiz
+</a>`);
         $("#course-detail").append(`
             <div class="mb-4">
                 <a href="/courses/" class="btn btn-outline-secondary btn-sm mb-3">← Back to Courses</a>

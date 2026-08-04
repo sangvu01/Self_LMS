@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} Quiz{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50">
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <p class="text-xs font-semibold tracking-widest text-blue-600 uppercase">{{ course.title }}</p>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">AI Quiz</h1>
+      </div>
+
+      <div class="flex items-center gap-8">
+        <div class="text-center">
+          <div class="text-xs text-slate-500">Question</div>
+          <div class="text-xl font-bold text-slate-800">{{ quiz.quizid }} / 5</div>
+        </div>
+        <div class="text-center">
+          <div class="text-xs text-slate-500">Timer</div>
+          <div id="timer" class="text-xl font-bold text-slate-800">05:00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="max-w-7xl mx-auto px-6 pb-3">
+      <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+        <div class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500" style="width: 100%"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-6 py-10">
+    <div class="grid lg:grid-cols-12 gap-8">
+
+      <!-- Left: Question Area -->
+      <div class="lg:col-span-8 space-y-6">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+          
+          <!-- Question Header -->
+          <div class="flex items-start gap-5 mb-8">
+            <div class="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+              {{ quiz.quizid }}
+            </div>
+            <div>
+              <p class="text-sm font-medium text-slate-500 mb-1">Question</p>
+              <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 leading-snug">
+                {{ quiz.question }}
+              </h2>
+            </div>
+          </div>
+
+<!-- Answer Options + Form -->
+<form method="POST" id="quizForm">
+  {% csrf_token %}
+
+  <div class="space-y-3">
+    {% for option in quiz.options %}
+    <label class="flex items-center gap-4 w-full border-2 border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all answer-label
+      {% if previous_answer == option %}border-blue-500 bg-blue-50{% endif %}">
+      
+      <input type="radio" 
+             name="selected_answer" 
+             value="{{ option }}" 
+             class="w-5 h-5 accent-blue-600 answer-radio"
+             {% if previous_answer == option %}checked{% endif %}
+             required>
+             
+      <span class="text-lg font-medium text-slate-700">{{ option }}</span>
+    </label>
+    {% endfor %}
+  </div>
+
+  <!-- Footer -->
+  <footer class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 z-40">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-6 py-4">
+      
+      <!-- Previous -->
+      {% if quiz.quizid > 1 %}
+        <a href="/course/{{ course.slug }}/quiz/{{ quiz.quizid|add:'-1' }}/" 
+           class="w-full sm:w-auto px-6 py-3 border border-slate-300 rounded-xl text-slate-600 hover:bg-slate-50 text-center nav-link">
+          ← Previous
+        </a>
+      {% else %}
+        <button disabled class="w-full sm:w-auto px-6 py-3 border border-slate-200 rounded-xl text-slate-400 cursor-not-allowed">
+          ← Previous
+        </button>
+      {% endif %}
+
+      <!-- Next + Submit -->
+      <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+        {% if quiz.quizid < 5 %}
+          <button type="submit" name="action" value="next"
+                  class="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold">
+            Next →
+          </button>
+        {% endif %}
+
+        <button type="button" id="btnSubmitQuiz"
+                class="w-full sm:w-auto px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold">
+          Submit Quiz
+        </button>
+      </div>
+    </div>
+  </footer>
+</form>
+
+<div class="h-28"></div>
+
+<!-- Confirm Submit Modal -->
+<div id="confirmModal" class="fixed inset-0 z-50 hidden">
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+  <!-- Modal content -->
+  <div class="relative flex items-center justify-center min-h-screen px-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center">
+      <div class="w-16 h-16 mx-auto mb-5 rounded-full bg-amber-100 flex items-center justify-center">
+        <span class="text-3xl">⚠️</span>
+      </div>
+      
+      <h3 class="text-2xl font-bold text-slate-800 mb-3">Submit Quiz?</h3>
+      <p class="text-slate-600 mb-8">
+        Are you sure you want to submit your answers?<br>
+        You won’t be able to change them after submitting.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button type="button" id="btnCancelSubmit"
+                class="w-full px-6 py-3 border border-slate-300 rounded-xl text-slate-600 hover:bg-slate-50 font-medium">
+          Go Back
+        </button>
+        <button type="button" id="btnConfirmSubmit"
+                class="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold">
+          Yes, Submit
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="h-28"></div>
+
+
+          <!-- Result Feedback -->
+<div id="result" class="hidden mt-5 rounded-xl p-4 text-sm"></div>
+
+<!-- Explanation -->
+<div id="explanationCard" class="hidden mt-4 bg-slate-50 border border-slate-200 rounded-xl p-4">
+  <h3 class="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
+    <span class="text-blue-600">💡</span> Explanation
+  </h3>
+  <p class="text-sm text-slate-600 leading-relaxed">
+    {{ quiz.explanation|default:"This answer is explained here." }}
+  </p>
+</div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar: Quiz Info -->
+      <div class="lg:col-span-4">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sticky top-32">
+          <h3 class="text-xl font-bold text-slate-800 mb-6">Quiz Information</h3>
+          
+          <div class="space-y-5">
+            <div>
+              <div class="text-sm text-slate-500 mb-1">Course</div>
+              <div class="font-semibold text-slate-800">{{ course.title }}</div>
+            </div>
+            
+            <div>
+              <div class="text-sm text-slate-500 mb-1">Quiz ID</div>
+              <div class="font-semibold text-slate-800">#{{ quiz.quizid }}</div>
+            </div>
+            
+            <div>
+              <div class="text-sm text-slate-500 mb-1">Difficulty</div>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-700">
+                Beginner
+              </span>
+            </div>
+            
+            <div>
+              <div class="text-sm text-slate-500 mb-1">Reward</div>
+              <div class="text-2xl font-bold text-amber-500">+10 XP</div>
+            </div>
+          </div>
+         <!-- Question Navigator -->
+<div class="mt-8">
+  <div class="text-sm text-slate-500 mb-3">Questions</div>
+  <div class="flex flex-wrap gap-2">
+    {% for i in "12345" %}
+      <a href="/course/{{ course.slug }}/quiz/{{ forloop.counter }}/"
+         class="w-10 h-10 flex items-center justify-center rounded-xl font-semibold transition
+                {% if quiz.quizid == forloop.counter %}
+                  bg-blue-600 text-white shadow
+                {% elif forloop.counter in answered_ids %}
+                  bg-emerald-500 text-white
+                {% else %}
+                  bg-slate-100 border border-slate-300 text-slate-600 hover:bg-blue-50 hover:border-blue-400
+                {% endif %}">
+        {{ forloop.counter }}
+      </a>
+    {% endfor %}
+  </div>
+</div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+<script>
+  // Reset timer nếu đang Retake
+  const urlParams = new URLSearchParams(window.location.search);
+  const TIMER_KEY = "quiz_timer_{{ course.slug }}";
+
+  if (urlParams.get('retake') === '1') {
+    sessionStorage.removeItem(TIMER_KEY);
+    // Xóa luôn các key khác phòng trường hợp
+    sessionStorage.clear();
+  }
+
+  let sec = parseInt(sessionStorage.getItem(TIMER_KEY));
+  
+  // Nếu không có giá trị hoặc đang retake thì đặt lại 5 phút
+  if (isNaN(sec) || urlParams.get('retake') === '1') {
+    sec = 300;
+  }
+
+  function updateTimer() {
+    if (sec <= 0) {
+      clearInterval(timerInterval);
+      sessionStorage.removeItem(TIMER_KEY);
+      window.location.href = `/course/{{ course.slug }}/result/`;
+      return;
+    }
+
+    const m = String(Math.floor(sec / 60)).padStart(2, "0");
+    const s = String(sec % 60).padStart(2, "0");
+    document.getElementById("timer").textContent = `${m}:${s}`;
+
+    sec--;
+    sessionStorage.setItem(TIMER_KEY, sec);
+  }
+
+  updateTimer();
+  const timerInterval = setInterval(updateTimer, 1000);
+
+  // ========== CONFIRM SUBMIT ==========
+const btnSubmitQuiz = document.getElementById("btnSubmitQuiz");
+const confirmModal = document.getElementById("confirmModal");
+const btnCancelSubmit = document.getElementById("btnCancelSubmit");
+const btnConfirmSubmit = document.getElementById("btnConfirmSubmit");
+const quizForm = document.getElementById("quizForm");
+
+btnSubmitQuiz.addEventListener("click", function() {
+  confirmModal.classList.remove("hidden");
+});
+
+btnCancelSubmit.addEventListener("click", function() {
+  confirmModal.classList.add("hidden");
+});
+
+// Bấm Yes, Submit → gửi action=submit
+btnConfirmSubmit.addEventListener("click", function() {
+  let input = document.createElement("input");
+  input.type = "hidden";
+  input.name = "action";
+  input.value = "submit";
+  quizForm.appendChild(input);
+  quizForm.submit();
+});
+</script>
+{% endblock %}
