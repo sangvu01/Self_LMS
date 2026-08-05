@@ -22,27 +22,76 @@ function renderSidebar(chapters, courseSlug, current_chapter_slug, course_title)
     return sidebar;
 }
 
-function renderChapter(chapter,course_title,courseSlug){
+// function renderChapter(chapter,course_title,courseSlug){
 
-    htmlcode = `
+//     htmlcode = `
+//     <div class="mb-4">
+//         <a href="/courses/${courseSlug}/" class="btn btn-outline-secondary btn-sm mb-3">← Back to Course</a>
+//         <h2 class="fw-bold mb-2">${ chapter.title }</h2>
+//         <p class="text-muted mb-0">${ chapter.summary }</p>
+//     </div>
+
+//     <div class="card shadow-sm border-0">
+//         <div class="card-body">
+//             <div class="mb-4">
+//                 <span class="badge bg-primary">${ course_title }</span>
+//             </div>
+//             <div class="content">
+//                 ${ chapter.content }
+//             </div>
+//         </div>
+//     </div>
+//     `
+//     return htmlcode
+// }
+function renderChapter(chapter, course_title, courseSlug){
+
+    const prevBtn = chapter.prev_chap_slug
+        ? `<a href="/courses/${courseSlug}/${chapter.prev_chap_slug}/"
+              class="btn btn-outline-secondary">
+                ← Previous
+           </a>`
+        : `<span></span>`;
+
+    const nextBtn = chapter.next_chap_slug
+        ? `<a href="/courses/${courseSlug}/${chapter.next_chap_slug}/"
+              class="btn btn-primary">
+                Next →
+           </a>`
+        : `<span></span>`;
+
+    return `
     <div class="mb-4">
-        <a href="/courses/${courseSlug}/" class="btn btn-outline-secondary btn-sm mb-3">← Back to Course</a>
-        <h2 class="fw-bold mb-2">${ chapter.title }</h2>
-        <p class="text-muted mb-0">${ chapter.summary }</p>
+        <a href="/courses/${courseSlug}/"
+           class="btn btn-outline-secondary btn-sm mb-3">
+           ← Back to Course
+        </a>
+
+        <h2 class="fw-bold mb-2">${chapter.title}</h2>
+        <p class="text-muted mb-0">${chapter.summary}</p>
     </div>
 
     <div class="card shadow-sm border-0">
         <div class="card-body">
+
             <div class="mb-4">
-                <span class="badge bg-primary">${ course_title }</span>
+                <span class="badge bg-primary">${course_title}</span>
             </div>
+
             <div class="content">
-                ${ chapter.content }
+                ${chapter.content}
             </div>
+
+            <hr>
+
+            <div class="d-flex justify-content-between mt-4">
+                ${prevBtn}
+                ${nextBtn}
+            </div>
+
         </div>
     </div>
-    `
-    return htmlcode
+    `;
 }
 index = () => {
     console.log("chapter.js/index() START");
