@@ -1,9 +1,37 @@
 {% extends 'base.html' %}
+{%load static%}
 
-{% block title %}{{ course.title }}{% endblock %}
+{% block title %}COURSE DETAIL{% endblock %}
+
+{% block sidebar_small_width %}
+    <div class="list-group" id="sidebar_small_width">
+
+    </div>
+{% endblock sidebar_small_width %}
+
 
 {% block content %}
-<div class="p-4">
+<div class="p-4" id="course-detail" data-course-slug="{{ course_slug }}">
+    
+</div> 
+{% endblock %}
+
+{% block sidebar_big_width %}
+    <div class="list-group" id="sidebar_big_width">
+
+    </div>
+{% endblock sidebar_big_width %}
+
+{% block jsfooter %}
+    <script>
+        const API = {
+            course: "{% url 'api-courses-id' course_slug='COURSE_SLUG' %}"
+        };
+    </script>
+
+    <script src="{% static 'js/course_detail.js' %}"></script>
+{% endblock jsfooter %}
+{% comment %} 
     <div class="mb-4">
         <a href="{% url 'courses' %}" class="btn btn-outline-secondary btn-sm mb-3">← Back to Courses</a>
         <h2 class="fw-bold mb-2">{{ course.title }}</h2>
@@ -35,6 +63,5 @@
                 {% endfor %}
             </div>
         </div>
-    </div>
-</div>
-{% endblock %}
+    </div> 
+{% endcomment %}
