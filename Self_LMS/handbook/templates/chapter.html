@@ -1,9 +1,44 @@
 {% extends 'base.html' %}
-
-{% block title %}{{ chapter.title }}{% endblock %}
+{%load static%}
+{% block title %}CHAPTER DETAIL{% endblock %}
 
 {% block content %}
 {% comment %} <button type="submit" form="create-user" class="btn btn-danger" id="btn-test">test</button> {% endcomment %}
+
+<div
+    class="p-4"
+    id= "chapter-detail"
+    data-course-slug="{{course_slug}}"
+    data-chapter-slug="{{chapter_slug}}"
+>
+
+</div>
+
+{% endblock %}
+{% block jsfooter %}
+    <script>
+        const API = {
+        chapter: "{% url 'api-chapter-detail' course_slug='COURSE_SLUG' chapter_slug='CHAPTER_SLUG' %}"
+    }
+    </script>
+    <script src="{%static 'js/chapter.js'%}"></script>
+{% endblock jsfooter %}
+
+{% block footer %}
+    
+{% endblock footer %}
+{% block sidebar_big_width %}
+    <div class="list-group" id="sidebar_big_width">
+
+    </div>
+{% endblock sidebar_big_width %}
+{% block sidebar_small_width %}
+    <div class="list-group" id="sidebar_small_width">
+
+    </div>
+{% endblock sidebar_small_width %} 
+
+{% comment %} 
 <div class="p-4">
     <div class="mb-4">
         <a href="{% url 'course_detail' course.slug %}" class="btn btn-outline-secondary btn-sm mb-3">← Back to Course</a>
@@ -21,16 +56,5 @@
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
-{% comment %} {% block jsfooter %}
-    <script>
-        $('#btn-test').on('click', function () {
-            alert("scgidj")
-        })
-    </script>
-{% endblock jsfooter %} {% endcomment %}
-{% block footer %}
-    
-{% endblock footer %}
-
+</div>  
+{% endcomment %}

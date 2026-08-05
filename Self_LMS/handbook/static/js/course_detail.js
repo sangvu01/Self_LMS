@@ -16,8 +16,17 @@ function renderChapters(chapters, courseSlug) {
     return chapterHTML;
 }
 
-function renderSidebar(chapters, courseSlug, current_chapter_slug){
-    let sidebar = ""
+function renderSidebar(chapters, courseSlug, current_chapter_slug, course_title){
+    let sidebar = `<a href = "/courses/${courseSlug}/" class="text-decoration-none text-dark"><h5 class="fw-bold mb-4">
+
+              <i class="bi bi-journal-bookmark"></i>
+
+
+                ${course_title}
+
+            </h5>
+            <a>
+            `
     chapters.forEach(chapter => {
         const active = (chapter.slug === current_chapter_slug ? "active" : "");
         sidebar += `
@@ -65,7 +74,7 @@ index = () => {
         document.title = data.title;
         console.log(data.chapters)
         const chapterHTML = renderChapters(data.chapters, courseSlug); 
-        const sidebar = renderSidebar(data.chapters, courseSlug, data.current_chapter);
+        const sidebar = renderSidebar(data.chapters, courseSlug, data.current_chapter, data.title);
         const courseHTML = renderCourse(data, chapterHTML);
         $("#sidebar_small_width").html(`${sidebar}`);
         $("#sidebar_big_width").html(`${sidebar}`);

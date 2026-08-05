@@ -54,8 +54,9 @@
     tabindex="-1"
     id="sidebar">
     {% comment %} SIDEBAR KHI TRANG HẸP {% endcomment %}
+    {% block sidebar_small_width %}
     <div class="offcanvas-header">
-
+        
         <h5>Documentation</h5>
 
         <button
@@ -66,7 +67,7 @@
     </div>
 
     <div class="offcanvas-body">
-        {% block sidebar_small_width %}
+        
             <div class="list-group">
                 {% if course %}
                     {% for chapter_item in course.chapters %}
@@ -82,9 +83,10 @@
                 {% endif %}
                 
             </div>
-        {% endblock sidebar_small_width %}
+        
 
     </div>
+    {% endblock sidebar_small_width %}
 
 </div>
 
@@ -94,8 +96,9 @@
 
         <!-- Sidebar -->
         {% comment %} SIDEBAR KHI TRANG CÒN RỘNG {% endcomment %}
+        
         <aside class="col-md-3 col-lg-2 d-none d-md-block sidebar">
-            
+            {% block sidebar_big_width %}
             <h5 class="fw-bold mb-4">
 
               <i class="bi bi-journal-bookmark"></i>
@@ -103,7 +106,7 @@
                 Documentation
 
             </h5>
-            {% block sidebar_big_width %}
+            
                 <div class="list-group">
                     {% if course %}
                         {% for chapter_item in course.chapters %}
@@ -118,9 +121,10 @@
                         </a>
                     {% endif %}
                 </div>
-            {% endblock sidebar_big_width %}
-
+            
+                {% endblock sidebar_big_width %}
         </aside>
+        
         {% comment %} <aside class="col-md-3 col-lg-2 d-none d-md-block sidebar">
 
             <h5 class="fw-bold mb-4">

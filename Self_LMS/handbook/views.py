@@ -3,8 +3,8 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.views.generic import ListView
-from .models import Course
-from .serializers import CourseSerializer
+from .models import Course, Chapter
+from .serializers import CourseSerializer, ChapterSerializer, SideBarChapterSerializer, ChapterDetailSerializer
 from rest_framework import status
 # class CourseListAPIView(ListView):
 class CourseListAPIView(APIView):
@@ -31,6 +31,16 @@ class CourseDetailAPIView(APIView):
         # c = Course.objects.filter(slug=course_slug).first()
         s = CourseSerializer(c)
         
+        return Response(s.data)
+
+class ChapterAPIView(APIView):
+    def get(self, req, course_slug, chapter_slug):
+        chapter = get_object_or_404(
+            Chapter, 
+            course__slug = course_slug,
+            slug = chapter_slug
+        )
+        s = ChapterDetailSerializer(chapter)
         return Response(s.data)
 """
 {"id" : 5}
@@ -180,14 +190,18 @@ def course_detail(req, course_slug):
 
 #serializers.py : class để validdate dữ liệu
 def chapter_detail(req, course_slug, chapter_slug):
-    course = get_course(course_slug)
-    if course is None:
-        raise Http404("Course not found")
+    return render(req, "chapter.html", {
+        "course_slug": course_slug,
+        "chapter_slug": chapter_slug
+    })
+    # course = get_course(course_slug)
+    # if course is None:
+    #     raise Http404("Course not found")
 
-    chapter = next((item for item in course["chapters"] if item["slug"] == chapter_slug), None)
-    if chapter is None:
-        raise Http404("Chapter not found")
+    # chapter = next((item for item in course["chapters"] if item["slug"] == chapter_slug), None)
+    # if chapter is None:
+    #     raise Http404("Chapter not found")
 
-    return render(req, 'chapter.html', {"course": course, "chapter": chapter})
+    # return render(req, 'chapter.html', {"course": course, "chapter": chapter})
 
 
