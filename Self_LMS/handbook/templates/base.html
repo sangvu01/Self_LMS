@@ -112,11 +112,16 @@
                                     {{ chapter_item.title }}
                             </a>
                         {% endfor %}
+                        <a href="{% url 'start_quiz' course.slug %}" 
+   class="list-group-item list-group-item-action">
+    📝 Start Quiz
+</a>
                     {% else %}
                         <a href="{% url 'courses' %}" class="list-group-item list-group-item-action">
                             Go to courses
                         </a>
                     {% endif %}
+                    
                 </div>
             {% endblock sidebar_big_width %}
 

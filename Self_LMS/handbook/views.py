@@ -116,6 +116,8 @@ COURSES = [
         "explanation": "Responsible AI focuses on fairness, transparency, and protecting user privacy while reducing harmful bias in AI systems."
     }
 ],
+
+        
         "chapters": [
             {
                 "slug": "intro-ai",
@@ -161,6 +163,10 @@ COURSES = [
             },
         ],
     },
+
+    
+
+
     {
         "slug": "python-for-ai",
         "title": "Python for AI",
@@ -227,6 +233,26 @@ def get_course(course_slug):
     # v = CourseDetailAPIView()
     # return v.get()
 
+import random
+
+import random
+
+def get_shuffled_quiz_ids(course, req, force_new=False):
+    key = f"quiz_order_{course['slug']}"
+    quizs = course.get("quizs", [])
+    all_ids = [q["quizid"] for q in quizs]
+
+    if not all_ids:
+        return []
+
+    if force_new or key not in req.session:
+        shuffled = all_ids[:]
+        random.shuffle(shuffled)
+        req.session[key] = shuffled
+        req.session.modified = True
+
+    return req.session[key]
+
 
 def course_detail(req, course_slug):
     # v = CourseDetailAPIView()
@@ -256,71 +282,94 @@ def quiz_id(req, course_slug, quiz_id):
     if course is None:
         raise Http404("Course not found")
 
-    # Nếu đã nộp bài rồi → không cho vào lại câu hỏi
     if req.session.get(f"quiz_finished_{course_slug}"):
         return redirect("quiz_result", course_slug=course_slug)
 
+    # Lấy thứ tự đã shuffle (ví dụ [3,1,5,2,4])
+    order = get_shuffled_quiz_ids(course, req, force_new=False)
+
+    # quiz_id trên URL là vị trí (1,2,3...), không phải quizid thật
+    if quiz_id < 1 or quiz_id > len(order):
+        raise Http404("Quiz not found")
+
+    real_quiz_id = order[quiz_id - 1]  # map vị trí → câu thật
+
     quiz = next(
-        (item for item in course.get("quizs", []) if item["quizid"] == quiz_id),
+        (item for item in course.get("quizs", []) if item["quizid"] == real_quiz_id),
         None
     )
     if quiz is None:
         raise Http404("Quiz not found")
 
-    # Xử lý retake
     if req.GET.get("retake") == "1":
         req.session.pop("quiz_answers", None)
         req.session.pop(f"quiz_finished_{course_slug}", None)
+        req.session.pop(f"quiz_order_{course_slug}", None)
+        get_shuffled_quiz_ids(course, req, force_new=True)
         req.session.modified = True
         req.session.save()
+        # lấy lại order mới sau khi shuffle
+        order = get_shuffled_quiz_ids(course, req, force_new=False)
+        real_quiz_id = order[quiz_id - 1]
+        quiz = next(
+            (item for item in course.get("quizs", []) if item["quizid"] == real_quiz_id),
+            None
+        )
 
     if "quiz_answers" not in req.session:
         req.session["quiz_answers"] = {}
 
-    previous_answer = req.session["quiz_answers"].get(str(quiz_id), {}).get("selected")
-    answered_ids = [int(qid) for qid in req.session.get("quiz_answers", {}).keys()]
+    # Lưu / đọc đáp án theo real_quiz_id (câu thật)
+    previous_answer = req.session["quiz_answers"].get(str(real_quiz_id), {}).get("selected")
+    answered_ids = []
+    # answered_ids theo vị trí trên navigator (1..5)
+    for pos, rid in enumerate(order, start=1):
+        if str(rid) in req.session.get("quiz_answers", {}):
+            answered_ids.append(pos)
 
     if req.method == "POST":
         selected = req.POST.get("selected_answer")
-        action = req.POST.get("action")   # "next" hoặc "submit"
-        goto = req.POST.get("goto")       # câu muốn nhảy đến từ navigator
+        action = req.POST.get("action")
+        goto = req.POST.get("goto")
 
-        # Lưu đáp án hiện tại (nếu có chọn)
         if selected:
             is_correct = selected == quiz["answer"]
-            req.session["quiz_answers"][str(quiz_id)] = {
+            req.session["quiz_answers"][str(real_quiz_id)] = {
                 "selected": selected,
                 "correct": is_correct
             }
             req.session.modified = True
 
-        # 1. Bấm Submit Quiz → nộp bài ngay
+        if action == "save":
+            from django.http import JsonResponse
+            return JsonResponse({"status": "ok"})
+
         if action == "submit":
             return redirect("quiz_result", course_slug=course_slug)
 
-        # 2. Bấm số câu hỏi ở Navigator → chuyển đến câu đó
         if goto:
             return redirect("quiz_detail", course_slug=course_slug, quiz_id=int(goto))
 
-        # 3. Bấm Next → sang câu tiếp theo
-        total_quizzes = len(course.get("quizs", []))
+        total_quizzes = len(order)
         if quiz_id < total_quizzes:
             return redirect("quiz_detail", course_slug=course_slug, quiz_id=quiz_id + 1)
         else:
             return redirect("quiz_result", course_slug=course_slug)
 
+    # Hiển thị số câu theo vị trí (1..5), không phải real_quiz_id
+    display_quiz = dict(quiz)
+    display_quiz["quizid"] = quiz_id   # để template hiện 1,2,3...
+
     response = render(req, 'quizs/quiz.html', {
         "course": course,
-        "quiz": quiz,
+        "quiz": display_quiz,
         "previous_answer": previous_answer,
         "answered_ids": answered_ids,
     })
 
-    # Chống cache
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response['Pragma'] = 'no-cache'
     response['Expires'] = '0'
-
     return response
 
 
@@ -337,16 +386,29 @@ def quiz_result(req, course_slug):
     score = round((correct / total) * 100) if total > 0 else 0
     passed = score > 50
 
-    # Tạo review
+    # Thứ tự đã shuffle lúc làm bài (ví dụ [3, 1, 5, 2, 4])
+    order = req.session.get(f"quiz_order_{course_slug}")
+    if not order:
+        # fallback nếu không có order
+        order = [q["quizid"] for q in quizzes]
+
+    # Map quizid → object câu hỏi
+    quiz_by_id = {q["quizid"]: q for q in quizzes}
+
+    # Review theo đúng thứ tự đã làm (đã shuffle)
     review = []
-    for quiz in quizzes:
-        qid = str(quiz["quizid"])
-        user_data = answers.get(qid, {})
+    for position, real_id in enumerate(order, start=1):
+        quiz = quiz_by_id.get(real_id)
+        if not quiz:
+            continue
+
+        user_data = answers.get(str(real_id), {})
         selected = user_data.get("selected")
         is_correct = user_data.get("correct", False)
 
         review.append({
-            "quizid": quiz["quizid"],
+            "quizid": position,              # số hiện trên UI (1,2,3...) = thứ tự lúc làm
+            "real_quizid": real_id,          # id thật trong data
             "question": quiz["question"],
             "options": quiz["options"],
             "correct_answer": quiz["answer"],
@@ -355,11 +417,10 @@ def quiz_result(req, course_slug):
             "explanation": quiz.get("explanation", ""),
         })
 
-    # Đánh dấu đã hoàn thành quiz
     req.session[f"quiz_finished_{course_slug}"] = True
-
-    # Xóa đáp án
     req.session.pop("quiz_answers", None)
+    # giữ hoặc xóa order đều được; xóa cho sạch
+    req.session.pop(f"quiz_order_{course_slug}", None)
     req.session.modified = True
 
     response = render(req, 'quizs/result.html', {
@@ -370,34 +431,50 @@ def quiz_result(req, course_slug):
         "passed": passed,
         "review": review,
     })
-
-    # Chống cache
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response['Pragma'] = 'no-cache'
     response['Expires'] = '0'
-
     return response
 
 
 def retake_quiz(req, course_slug):
-    # Xóa đáp án + cờ đã hoàn thành
+    course = get_course(course_slug)
+    if course is None:
+        raise Http404("Course not found")
+
+    # Xóa hết dữ liệu lần làm cũ
     req.session.pop("quiz_answers", None)
     req.session.pop(f"quiz_finished_{course_slug}", None)
+    req.session.pop(f"quiz_order_{course_slug}", None)  # xóa thứ tự cũ
+
+    # Tạo thứ tự mới (kể cả khi vừa trượt)
+    get_shuffled_quiz_ids(course, req, force_new=True)
+
     req.session.modified = True
     req.session.save()
 
-    return redirect(f"/course/{course_slug}/quiz/1/?retake=1")
+    return redirect("start_quiz", course_slug=course_slug)
 
 def start_quiz(req, course_slug):
     course = get_course(course_slug)
     if course is None:
         raise Http404("Course not found")
 
+    if not course.get("quizs"):
+        raise Http404("This course has no quiz yet.")
+
+    # Mỗi lần vào Start = lần làm mới → shuffle mới
+    req.session.pop("quiz_answers", None)
+    req.session.pop(f"quiz_finished_{course_slug}", None)
+    req.session.pop(f"quiz_order_{course_slug}", None)
+    get_shuffled_quiz_ids(course, req, force_new=True)
+    req.session.modified = True
+
     total_questions = len(course.get("quizs", []))
-    
+
     return render(req, 'quizs/start_quiz.html', {
         "course": course,
         "total_questions": total_questions,
-        "duration": 5,          # số phút
-        "max_score": total_questions * 10,  # mỗi câu 10 điểm
+        "duration": 5,
+        "max_score": total_questions * 10,
     })

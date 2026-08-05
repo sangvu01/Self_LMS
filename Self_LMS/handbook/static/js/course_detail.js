@@ -41,7 +41,7 @@ index = () => {
 </a>`);
         $("#course-detail").append(`
             <div class="mb-4">
-                <a href="/courses/" class="btn btn-outline-secondary btn-sm mb-3">← Back to Courses</a>
+                <a href="/courses/" class="btn btn-outline-secondary btn-sm mb-3">← My Courses</a>
                 <h2 class="fw-bold mb-2">${data.title}</h2>
                 <p class="text-muted mb-0">${ data.description }</p>
             </div>
