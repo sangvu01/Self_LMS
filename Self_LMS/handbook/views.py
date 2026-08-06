@@ -460,21 +460,21 @@ def start_quiz(req, course_slug):
     if course is None:
         raise Http404("Course not found")
 
-    if not course.get("quizs"):
-        raise Http404("This course has no quiz yet.")
+    quizs = course.get("quizs", [])
+    total_questions = len(quizs)
 
-    # Mỗi lần vào Start = lần làm mới → shuffle mới
-    req.session.pop("quiz_answers", None)
-    req.session.pop(f"quiz_finished_{course_slug}", None)
-    req.session.pop(f"quiz_order_{course_slug}", None)
-    get_shuffled_quiz_ids(course, req, force_new=True)
-    req.session.modified = True
-
-    total_questions = len(course.get("quizs", []))
+    # Chỉ xóa session / shuffle khi đã có quiz
+    if total_questions > 0:
+        req.session.pop("quiz_answers", None)
+        req.session.pop(f"quiz_finished_{course_slug}", None)
+        req.session.pop(f"quiz_order_{course_slug}", None)
+        get_shuffled_quiz_ids(course, req, force_new=True)
+        req.session.modified = True
 
     return render(req, 'quizs/start_quiz.html', {
         "course": course,
         "total_questions": total_questions,
         "duration": 5,
         "max_score": total_questions * 10,
+        "has_quiz": total_questions > 0,
     })

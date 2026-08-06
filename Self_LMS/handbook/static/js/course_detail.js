@@ -1,5 +1,5 @@
 index = () => {
-    console.log("courses_detail.js/index() START");
+    console.log("courses_detail.js/index() STARSTSYT");
     const courseSlug = $("#course-detail").data("course-slug");
     const url = API.course.replace("COURSE_SLUG", courseSlug)
     console.log(courseSlug)
@@ -8,7 +8,10 @@ index = () => {
     // })
     $.get(url, (data) => {
         document.title = data.title;
-        console.log(data.chapters)
+        // console.log(data.chapters)
+        console.log("API DATA:", data);
+    console.log("Title:", data.title);
+    console.log("Chapters:", data.chapters);
         chapterHTML = ""; sidebar = "";
         data.chapters.forEach(chapter => {
             const active = (chapter.slug === data.current_chapter ? "active" : "");
