@@ -1,4 +1,59 @@
-function renderSidebar(chapters, courseSlug, current_chapter_slug, course_title){
+function renderSidebar(chapters, courseSlug, current_chapter_slug, course_title, isMobile){
+    button = isMobile ? `<button
+                class="btn-close"
+                data-bs-dismiss="offcanvas">
+            </button>` : ``
+    let sidebar = `
+        <div class="offcanvas-header">
+
+            <a href="/courses/${courseSlug}/"
+               class="text-decoration-none text-dark">
+
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-journal-bookmark"></i>
+                    ${course_title}
+                </h5>
+
+            </a>
+
+            ${button}
+
+        </div>
+
+
+        <div class="offcanvas-body">
+
+            <div class="list-group">
+    `;
+
+
+    chapters.forEach(chapter => {
+
+        const active = (
+            chapter.slug === current_chapter_slug
+            ? "active"
+            : ""
+        );
+
+        sidebar += `
+                <a href="/courses/${courseSlug}/${chapter.slug}/"
+                   class="list-group-item list-group-item-action ${active}">
+                    ${chapter.title}
+                </a>
+        `;
+    });
+
+
+    sidebar += `
+            </div>
+
+        </div>
+    `;
+
+
+    return sidebar;
+}
+function renderSidebar_old(chapters, courseSlug, current_chapter_slug, course_title){
     // href = "/courses/${courseSlug}/"
     let sidebar = ` <a href = "/courses/${courseSlug}/" class="text-decoration-none text-dark">
     <h5 class="fw-bold mb-4" >
@@ -8,7 +63,10 @@ function renderSidebar(chapters, courseSlug, current_chapter_slug, course_title)
 
                 ${course_title}
             
-            </h5></a>
+            </h5><button
+            class="btn-close"
+            data-bs-dismiss="offcanvas">
+        </button></a>
             `
     chapters.forEach(chapter => {
         const active = (chapter.slug === current_chapter_slug ? "active" : "");
@@ -17,11 +75,11 @@ function renderSidebar(chapters, courseSlug, current_chapter_slug, course_title)
                 class="list-group-item list-group-item-action ${active}">
                     ${chapter.title}
             </a>
+            
         `
     });
     return sidebar;
 }
-
 // function renderChapter(chapter,course_title,courseSlug){
 
 //     htmlcode = `
@@ -105,10 +163,11 @@ index = () => {
     $.get(url, function(data){
         document.title = data.title
         console.log(data);
-        const sidebarHTML = renderSidebar(data.chapters, courseSlug, data.current_chap, data.course_title);
+        const sidebarHTML = renderSidebar(data.chapters, courseSlug, data.current_chap, data.course_title, false);
+        const sidebarHTML_mobile = renderSidebar(data.chapters, courseSlug, data.current_chap, data.course_title, true);
         const contenthtml = renderChapter(data, data.course_title,courseSlug)
 
-        $("#sidebar_small_width").html(`${sidebarHTML}`);
+        $("#sidebar_small_width").html(`${sidebarHTML_mobile}`);
         $("#sidebar_big_width").html(`${sidebarHTML}`);
         $("#chapter-detail").html(contenthtml)
     });
