@@ -25,7 +25,7 @@
     <div class="container-fluid">
 
         <!-- Chỉ hiện trên mobile -->
-        <button
+        {% comment %} <button
             class="btn btn-primary d-lg-none"
             type="button"
             data-bs-toggle="offcanvas"
@@ -33,7 +33,16 @@
 
             <i class="bi bi-list fs-3"></i>
 
-        </button>
+        </button> {% endcomment %}
+        <button
+    class="navbar-toggler d-lg-none"
+    type="button"
+    data-bs-toggle="offcanvas"
+    data-bs-target="#sidebar"
+>
+    {% comment %} <span class="navbar-toggler-icon"></span> {% endcomment %}
+    <i class="bi bi-list menu-toggle-icon text-white"></i>
+</button>
 
         <a href="{% url 'courses' %}" class="navbar-brand fw-bold position-absolute start-50 translate-middle-x"> My Courses</a>
 
@@ -56,6 +65,8 @@
     {% comment %} SIDEBAR KHI TRANG HẸP {% endcomment %}
     {% block sidebar_small_width %}
     <div class="offcanvas-header">
+
+        
         
         <h5>Documentation</h5>
 
@@ -97,7 +108,8 @@
         <!-- Sidebar -->
         {% comment %} SIDEBAR KHI TRANG CÒN RỘNG {% endcomment %}
         
-        <aside class="col-md-3 col-lg-2 d-none d-md-block sidebar">
+        {% comment %} <aside class="col-md-3 col-lg-2 d-none d-md-block sidebar"> {% endcomment %}
+        <aside class="col-lg-2 d-none d-lg-block sidebar">
             {% block sidebar_big_width %}
             <h5 class="fw-bold mb-4">
 
@@ -203,7 +215,8 @@
 
         <!-- Main -->
 
-        <main class="col-md-9 col-lg-10 ">
+        {% comment %} <main class="col-md-9 col-lg-10 "> {% endcomment %}
+        <main class="col-12 col-lg-10 ">
 
             {% block content %}
               <div class="bg-white rounded-4 p-4 shadow">

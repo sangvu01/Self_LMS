@@ -22,7 +22,13 @@ class SideBarChapterSerializer(serializers.ModelSerializer):
 class ChapterDetailSerializer(serializers.ModelSerializer):
     chapters = serializers.SerializerMethodField()
     current_chap = serializers.SerializerMethodField()
-    course_title = serializers.SerializerMethodField()
+    # course_title = serializers.SerializerMethodField()
+    course_title = serializers.CharField(
+        source = "course.title",
+        read_only = True
+    )
+    prev_chap_slug = serializers.SerializerMethodField()
+    next_chap_slug = serializers.SerializerMethodField()
     class Meta:
         model = Chapter
         fields = [
@@ -35,7 +41,9 @@ class ChapterDetailSerializer(serializers.ModelSerializer):
             "course",
             "chapters",
             "current_chap",
-            "course_title"
+            "course_title",
+            "next_chap_slug",
+            "prev_chap_slug"
         ]    
     def get_chapters(self, obj):
         ch = obj.course.chapters.all()
@@ -45,3 +53,12 @@ class ChapterDetailSerializer(serializers.ModelSerializer):
         return obj.course.title
     def get_current_chap(self, obj):
         return obj.slug
+    def get_prev_chap_slug(self, obj):
+        ch = obj.course.chapters.filter(order__lt=obj.order).order_by("-order").first()
+        return ch.slug if ch else None
+        # chapters = list(filter(lambda c: c.order < obj.order, obj.course.chapters.all()))
+        # return None if (len(chapters) == 0) else chapters[-1].slug
+    def get_next_chap_slug(self, obj):
+        ch = obj.course.chapters.filter(order__gt=obj.order).order_by("order").first()
+        return ch.slug if ch else None
+        # return list(filter(lambda x: x.id < obj.id, obj.course.chapters.all()))[-1] if len(list(filter(lambda x: x.id < obj.id, obj.course.chapters.all()))) > 0 else None
