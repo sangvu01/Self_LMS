@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from handbook import views as handbook
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("handbook.urls")),

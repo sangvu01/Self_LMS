@@ -1,5 +1,5 @@
 from django.http import Http404
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.views.generic import ListView
@@ -66,6 +66,68 @@ COURSES = [
         "description": "Khóa học nền tảng về trí tuệ nhân tạo, tập trung vào prompt, mô hình và ứng dụng trong doanh nghiệp.",
         "duration": "6 weeks",
         "level": "Beginner",
+        "quizs": [
+    {
+        "quizid": 1,
+        "question": "What does AI stand for?",
+        "options": [
+            "Artificial Intelligence",
+            "Automated Information",
+            "Advanced Internet",
+            "Applied Innovation"
+        ],
+        "answer": "Artificial Intelligence",
+        "explanation": "AI stands for Artificial Intelligence. It refers to systems that can perform tasks that normally require human intelligence."
+    },
+    {
+        "quizid": 2,
+        "question": "Machine Learning is a subset of Artificial Intelligence.",
+        "options": [
+            "True",
+            "False"
+        ],
+        "answer": "True",
+        "explanation": "Yes, Machine Learning is a subset of AI that focuses on systems learning from data without being explicitly programmed."
+    },
+    {
+        "quizid": 3,
+        "question": "Which of the following is a popular Python library for Machine Learning?",
+        "options": [
+            "NumPy",
+            "Pandas",
+            "Scikit-learn",
+            "All of the above"
+        ],
+        "answer": "All of the above",
+        "explanation": "NumPy, Pandas, and Scikit-learn are all widely used libraries in Machine Learning with Python."
+    },
+    {
+        "quizid": 4,
+        "question": "What is the main purpose of Prompt Engineering?",
+        "options": [
+            "To design computer hardware",
+            "To write clear and effective instructions for AI models",
+            "To create mobile applications",
+            "To manage databases"
+        ],
+        "answer": "To write clear and effective instructions for AI models",
+        "explanation": "Prompt Engineering is the practice of crafting clear and effective prompts so that AI models can generate better and more accurate responses."
+    },
+    {
+        "quizid": 5,
+        "question": "Which of the following is an important principle of Responsible AI?",
+        "options": [
+            "Always use the fastest model",
+            "Ignore data privacy",
+            "Check for bias and protect user privacy",
+            "Only use AI for entertainment"
+        ],
+        "answer": "Check for bias and protect user privacy",
+        "explanation": "Responsible AI focuses on fairness, transparency, and protecting user privacy while reducing harmful bias in AI systems."
+    }
+],
+
+        
         "chapters": [
             {
                 "id": 1,
@@ -117,6 +179,10 @@ COURSES = [
             },
         ],
     },
+
+    
+
+
     {
         "slug": "python-for-ai",
         "title": "Python for AI",
@@ -170,6 +236,7 @@ COURSES = [
 
 
 def home(req):
+    # return render(req, 'quizs/quiz.html')
     return render(req, 'home.html')
 
 
@@ -186,6 +253,26 @@ def get_course(course_slug):
     return next((item for item in COURSES if item["slug"] == course_slug), None)
     # v = CourseDetailAPIView()
     # return v.get()
+
+import random
+
+import random
+
+def get_shuffled_quiz_ids(course, req, force_new=False):
+    key = f"quiz_order_{course['slug']}"
+    quizs = course.get("quizs", [])
+    all_ids = [q["quizid"] for q in quizs]
+
+    if not all_ids:
+        return []
+
+    if force_new or key not in req.session:
+        shuffled = all_ids[:]
+        random.shuffle(shuffled)
+        req.session[key] = shuffled
+        req.session.modified = True
+
+    return req.session[key]
 
 
 def course_detail(req, course_slug):
@@ -215,4 +302,204 @@ def chapter_detail(req, course_slug, chapter_slug):
 
     # return render(req, 'chapter.html', {"course": course, "chapter": chapter})
 
+def quiz_id(req, course_slug, quiz_id):
+    course = get_course(course_slug)
+    if course is None:
+        raise Http404("Course not found")
 
+    if req.session.get(f"quiz_finished_{course_slug}"):
+        return redirect("quiz_result", course_slug=course_slug)
+
+    # Lấy thứ tự đã shuffle (ví dụ [3,1,5,2,4])
+    order = get_shuffled_quiz_ids(course, req, force_new=False)
+
+    # quiz_id trên URL là vị trí (1,2,3...), không phải quizid thật
+    if quiz_id < 1 or quiz_id > len(order):
+        raise Http404("Quiz not found")
+
+    real_quiz_id = order[quiz_id - 1]  # map vị trí → câu thật
+
+    quiz = next(
+        (item for item in course.get("quizs", []) if item["quizid"] == real_quiz_id),
+        None
+    )
+    if quiz is None:
+        raise Http404("Quiz not found")
+
+    if req.GET.get("retake") == "1":
+        req.session.pop("quiz_answers", None)
+        req.session.pop(f"quiz_finished_{course_slug}", None)
+        req.session.pop(f"quiz_order_{course_slug}", None)
+        get_shuffled_quiz_ids(course, req, force_new=True)
+        req.session.modified = True
+        req.session.save()
+        # lấy lại order mới sau khi shuffle
+        order = get_shuffled_quiz_ids(course, req, force_new=False)
+        real_quiz_id = order[quiz_id - 1]
+        quiz = next(
+            (item for item in course.get("quizs", []) if item["quizid"] == real_quiz_id),
+            None
+        )
+
+    if "quiz_answers" not in req.session:
+        req.session["quiz_answers"] = {}
+
+    # Lưu / đọc đáp án theo real_quiz_id (câu thật)
+    previous_answer = req.session["quiz_answers"].get(str(real_quiz_id), {}).get("selected")
+    answered_ids = []
+    # answered_ids theo vị trí trên navigator (1..5)
+    for pos, rid in enumerate(order, start=1):
+        if str(rid) in req.session.get("quiz_answers", {}):
+            answered_ids.append(pos)
+
+    if req.method == "POST":
+        selected = req.POST.get("selected_answer")
+        action = req.POST.get("action")
+        goto = req.POST.get("goto")
+
+        if selected:
+            is_correct = selected == quiz["answer"]
+            req.session["quiz_answers"][str(real_quiz_id)] = {
+                "selected": selected,
+                "correct": is_correct
+            }
+            req.session.modified = True
+
+        if action == "save":
+            from django.http import JsonResponse
+            return JsonResponse({"status": "ok"})
+
+        if action == "submit":
+            return redirect("quiz_result", course_slug=course_slug)
+
+        if goto:
+            return redirect("quiz_detail", course_slug=course_slug, quiz_id=int(goto))
+
+        total_quizzes = len(order)
+        if quiz_id < total_quizzes:
+            return redirect("quiz_detail", course_slug=course_slug, quiz_id=quiz_id + 1)
+        else:
+            return redirect("quiz_result", course_slug=course_slug)
+
+    # Hiển thị số câu theo vị trí (1..5), không phải real_quiz_id
+    display_quiz = dict(quiz)
+    display_quiz["quizid"] = quiz_id   # để template hiện 1,2,3...
+
+    response = render(req, 'quizs/quiz.html', {
+        "course": course,
+        "quiz": display_quiz,
+        "previous_answer": previous_answer,
+        "answered_ids": answered_ids,
+    })
+
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
+
+
+def quiz_result(req, course_slug):
+    course = get_course(course_slug)
+    if course is None:
+        raise Http404("Course not found")
+
+    answers = req.session.get("quiz_answers", {})
+    quizzes = course.get("quizs", [])
+    total = len(quizzes)
+    correct = sum(1 for a in answers.values() if a.get("correct") is True)
+
+    score = round((correct / total) * 100) if total > 0 else 0
+    passed = score > 50
+
+    # Thứ tự đã shuffle lúc làm bài (ví dụ [3, 1, 5, 2, 4])
+    order = req.session.get(f"quiz_order_{course_slug}")
+    if not order:
+        # fallback nếu không có order
+        order = [q["quizid"] for q in quizzes]
+
+    # Map quizid → object câu hỏi
+    quiz_by_id = {q["quizid"]: q for q in quizzes}
+
+    # Review theo đúng thứ tự đã làm (đã shuffle)
+    review = []
+    for position, real_id in enumerate(order, start=1):
+        quiz = quiz_by_id.get(real_id)
+        if not quiz:
+            continue
+
+        user_data = answers.get(str(real_id), {})
+        selected = user_data.get("selected")
+        is_correct = user_data.get("correct", False)
+
+        review.append({
+            "quizid": position,              # số hiện trên UI (1,2,3...) = thứ tự lúc làm
+            "real_quizid": real_id,          # id thật trong data
+            "question": quiz["question"],
+            "options": quiz["options"],
+            "correct_answer": quiz["answer"],
+            "selected": selected,
+            "is_correct": is_correct,
+            "explanation": quiz.get("explanation", ""),
+        })
+
+    req.session[f"quiz_finished_{course_slug}"] = True
+    req.session.pop("quiz_answers", None)
+    # giữ hoặc xóa order đều được; xóa cho sạch
+    req.session.pop(f"quiz_order_{course_slug}", None)
+    req.session.modified = True
+
+    response = render(req, 'quizs/result.html', {
+        "course": course,
+        "score": score,
+        "correct": correct,
+        "total": total,
+        "passed": passed,
+        "review": review,
+    })
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
+
+
+def retake_quiz(req, course_slug):
+    course = get_course(course_slug)
+    if course is None:
+        raise Http404("Course not found")
+
+    # Xóa hết dữ liệu lần làm cũ
+    req.session.pop("quiz_answers", None)
+    req.session.pop(f"quiz_finished_{course_slug}", None)
+    req.session.pop(f"quiz_order_{course_slug}", None)  # xóa thứ tự cũ
+
+    # Tạo thứ tự mới (kể cả khi vừa trượt)
+    get_shuffled_quiz_ids(course, req, force_new=True)
+
+    req.session.modified = True
+    req.session.save()
+
+    return redirect("start_quiz", course_slug=course_slug)
+
+def start_quiz(req, course_slug):
+    course = get_course(course_slug)
+    if course is None:
+        raise Http404("Course not found")
+
+    if not course.get("quizs"):
+        raise Http404("This course has no quiz yet.")
+
+    # Mỗi lần vào Start = lần làm mới → shuffle mới
+    req.session.pop("quiz_answers", None)
+    req.session.pop(f"quiz_finished_{course_slug}", None)
+    req.session.pop(f"quiz_order_{course_slug}", None)
+    get_shuffled_quiz_ids(course, req, force_new=True)
+    req.session.modified = True
+
+    total_questions = len(course.get("quizs", []))
+
+    return render(req, 'quizs/start_quiz.html', {
+        "course": course,
+        "total_questions": total_questions,
+        "duration": 5,
+        "max_score": total_questions * 10,
+    })

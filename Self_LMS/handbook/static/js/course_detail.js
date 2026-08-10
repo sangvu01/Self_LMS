@@ -131,8 +131,14 @@ index = () => {
         const sidebar = renderSidebar(data.chapters, courseSlug, data.current_chapter, data.title, false);
         const sidebarHTML_mobile = renderSidebar(data.chapters, courseSlug, data.current_chapter, data.title, true);
         const courseHTML = renderCourse(data, chapterHTML);
-        $("#sidebar_small_width").html(`${sidebarHTML_mobile}`);
-        $("#sidebar_big_width").html(`${sidebar}`);
+        $("#sidebar_small_width").html(`${sidebarHTML_mobile}` + `<a href="/course/${courseSlug}/start/" 
+   class="list-group-item list-group-item-action">
+    📝 Start Quiz
+</a>`);
+        $("#sidebar_big_width").html(`${sidebar}` + `<a href="/course/${courseSlug}/start/" 
+   class="list-group-item list-group-item-action">
+    📝 Start Quiz
+</a>`);
         $("#course-detail").html(`${courseHTML}`);
     })
     
