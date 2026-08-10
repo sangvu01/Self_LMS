@@ -15,9 +15,13 @@ class CourseListAPIView(APIView):
 
     def get(self, request):
         courses = Course.objects.all()
-        # c = Course.objects.get(id = request)
-        serializer = CourseSerializer(courses, many=True)
-        return Response(serializer.data)
+        data = []
+        for course in courses:
+            course_data = CourseSerializer(course).data
+            quiz = Quiz.objects.filter(course=course, is_active=True).first()
+            course_data["quiz_count"] = quiz.questions.count() if quiz else 0
+            data.append(course_data)
+        return Response(data)
 
     def post(self, req):
         s = CourseSerializer(data=req.data)

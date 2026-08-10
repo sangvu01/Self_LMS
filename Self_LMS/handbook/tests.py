@@ -57,11 +57,25 @@ class QuizModelTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("start_quiz", kwargs={"course_slug": self.course.slug}))
 
+    def test_course_list_api_includes_quiz_question_count(self):
+        question = Question.objects.create(quiz=self.quiz, text="Sample question", order=1)
+        Choice.objects.create(question=question, text="A", is_correct=True)
+
+        response = self.client.get(reverse("api-courses"))
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["quiz_count"], 1)
+
     def test_second_question_page_uses_question_position_not_quiz_id(self):
         first_question = Question.objects.create(quiz=self.quiz, text="First question", order=1)
         Choice.objects.create(question=first_question, text="A", is_correct=True)
         second_question = Question.objects.create(quiz=self.quiz, text="Second question", order=2)
         Choice.objects.create(question=second_question, text="B", is_correct=True)
+
+        self.client.session[f"quiz_order_{self.quiz.id}"] = [first_question.id, second_question.id]
+        self.client.session.save()
 
         response = self.client.get(
             reverse("quiz_detail", kwargs={"course_slug": self.course.slug, "quiz_id": 2})

@@ -14,10 +14,6 @@ index = () => {
                         </div>
                     </li>
                 `})
-                const quizBadge = course.quiz_count > 0
-                    ? `<span class="badge bg-emerald-100 text-emerald-700">📝 ${course.quiz_count} quiz</span>`
-                    : `<span class="badge bg-secondary-subtle text-secondary">📝 no quiz yet</span>`;
-
                 $("#course-list").append(`
                     <div class="col-md-6 col-xl-4">
                         <div class="card h-100 shadow-sm border-0">
@@ -30,7 +26,6 @@ index = () => {
 
                                     <div class="d-flex gap-2 flex-wrap">
                                         <span class="badge bg-primary">${course.level}</span>
-                                        ${quizBadge}
                                     </div>
                                 </div>
 
