@@ -15,7 +15,7 @@
       <div class="flex items-center gap-8">
         <div class="text-center">
           <div class="text-xs text-slate-500">Question</div>
-          <div class="text-xl font-bold text-slate-800">{{ quiz.quizid }} / 5</div>
+          <div class="text-xl font-bold text-slate-800">{{ quiz_id }} / {{ total_questions }}</div>
         </div>
         <div class="text-center">
           <div class="text-xs text-slate-500">Timer</div>
@@ -28,7 +28,7 @@
     <div class="max-w-7xl mx-auto px-6 pb-3">
       <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
         <div class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500"
-             style="width: {{ quiz.quizid|add:'0'|floatformat:0 }}0%"></div>
+             style="width: {{ quiz_id|floatformat:0 }}0%"></div>
       </div>
     </div>
   </header>
@@ -44,12 +44,12 @@
           <!-- Question Header -->
           <div class="flex items-start gap-5 mb-8">
             <div class="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-md">
-              {{ quiz.quizid }}
+              {{ quiz_id }}
             </div>
             <div>
               <p class="text-sm font-medium text-slate-500 mb-1">Question</p>
               <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 leading-snug">
-                {{ quiz.question }}
+                {{ question.text }}
               </h2>
             </div>
           </div>
@@ -60,17 +60,17 @@
             <input type="hidden" name="goto" id="gotoInput" value="">
 
             <div class="space-y-3">
-              {% for option in quiz.options %}
+              {% for choice in question.choices.all %}
               <label class="flex items-center gap-4 w-full border-2 border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all answer-label
-                {% if previous_answer == option %}border-blue-500 bg-blue-50{% endif %}">
+                {% if previous_answer == choice.id %}border-blue-500 bg-blue-50{% endif %}">
 
                 <input type="radio"
                        name="selected_answer"
-                       value="{{ option }}"
+                       value="{{ choice.id }}"
                        class="w-5 h-5 accent-blue-600 answer-radio"
-                       {% if previous_answer == option %}checked{% endif %}>
+                       {% if previous_answer == choice.id %}checked{% endif %}>
 
-                <span class="text-lg font-medium text-slate-700">{{ option }}</span>
+                <span class="text-lg font-medium text-slate-700">{{ choice.text }}</span>
               </label>
               {% endfor %}
             </div>
@@ -80,8 +80,8 @@
               <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 px-6 py-4">
 
                 <!-- Previous -->
-                {% if quiz.quizid > 1 %}
-                  <a href="/course/{{ course.slug }}/quiz/{{ quiz.quizid|add:'-1' }}/"
+                {% if quiz_id > 1 %}
+                  <a href="/course/{{ course.slug }}/quiz/{{ quiz_id|add:'-1' }}/"
                      class="w-full sm:w-auto px-6 py-3 border border-slate-300 rounded-xl text-slate-600 hover:bg-slate-50 text-center">
                     ← Previous
                   </a>
@@ -93,7 +93,7 @@
 
                 <!-- Next + Submit -->
                 <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                  {% if quiz.quizid < 5 %}
+                  {% if quiz_id < total_questions %}
                     <button type="submit" name="action" value="next"
                             class="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold">
                       Next →
@@ -126,7 +126,7 @@
 
             <div>
               <div class="text-sm text-slate-500 mb-1">Quiz ID</div>
-              <div class="font-semibold text-slate-800">#{{ quiz.quizid }}</div>
+              <div class="font-semibold text-slate-800">#{{ quiz.id }}</div>
             </div>
 
             <div>
@@ -146,18 +146,18 @@
 <div class="mt-8 pt-6 border-t border-slate-200">
   <div class="text-sm text-slate-500 mb-3">Questions</div>
   <div class="flex flex-wrap gap-2">
-    {% for i in "12345" %}
+    {% for i in question_numbers %}
       <button type="button"
-              data-quiz-id="{{ forloop.counter }}"
+              data-quiz-id="{{ i }}"
               class="nav-btn w-10 h-10 flex items-center justify-center rounded-xl font-semibold transition
-                     {% if quiz.quizid == forloop.counter %}
+                     {% if quiz_id == i %}
                        bg-slate-400 text-white shadow
-                     {% elif forloop.counter in answered_ids %}
+                     {% elif i in answered_ids %}
                        bg-blue-600 text-white shadow
                      {% else %}
                        bg-slate-100 border border-slate-300 text-slate-600 hover:bg-blue-50 hover:border-blue-400
                      {% endif %}">
-        {{ forloop.counter }}
+        {{ i }}
       </button>
     {% endfor %}
   </div>
@@ -212,7 +212,7 @@
 
 <script>
   const COURSE_SLUG = "{{ course.slug }}";
-  const CURRENT_QUIZ_ID = {{ quiz.quizid }};
+  const CURRENT_QUIZ_ID = {{ quiz_id }};
   const TIMER_KEY = `quiz_timer_${COURSE_SLUG}`;
 
   // ========== TIMER ==========

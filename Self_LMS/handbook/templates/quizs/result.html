@@ -64,14 +64,14 @@
     <div class="text-sm text-slate-500 mb-2">Questions overview</div>
     <div class="flex flex-wrap gap-3">
       {% for item in review %}
-        <a href="#review-{{ item.quizid }}"
+        <a href="#review-{{ item.question_id }}"
            class="relative w-11 h-11 flex items-center justify-center rounded-xl text-base font-semibold transition hover:opacity-90
                   {% if item.is_correct %}
                     bg-emerald-500 text-white shadow
                   {% else %}
                     bg-red-500 text-white shadow
                   {% endif %}">
-          {{ item.quizid }}
+          {{ forloop.counter }}
           {% if item.is_correct %}
             <span class="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center shadow">
               +1
@@ -95,13 +95,22 @@
     <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-10">
       <h2 class="text-3xl font-bold text-slate-800 mb-10">Review Your Answers</h2>
 
+      <div class="bg-slate-50 rounded-2xl p-5 mb-8 border border-slate-200">
+        <div class="text-sm text-slate-500 mb-2">Result summary</div>
+        <div class="flex flex-wrap items-center gap-4 text-sm text-slate-700">
+          <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 font-semibold text-emerald-700">{{ correct }} correct</span>
+          <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">{{ total }} questions</span>
+          <span class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 font-semibold text-blue-700">{{ score }}% score</span>
+        </div>
+      </div>
+
       <div class="space-y-12">
         {% for item in review %}
-        <div id="review-{{ item.quizid }}" class="border-b border-slate-100 pb-10 last:border-0 last:pb-0 scroll-mt-28">
+        <div id="review-{{ item.question_id }}" class="border-b border-slate-100 pb-10 last:border-0 last:pb-0 scroll-mt-28">
           <!-- Question -->
           <div class="flex items-start gap-5 mb-6">
             <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-lg font-bold text-slate-700">
-              {{ item.quizid }}
+              {{ forloop.counter }}
             </div>
             <div>
               <h3 class="text-xl font-semibold text-slate-800 leading-snug">{{ item.question }}</h3>
@@ -153,10 +162,10 @@
           </div>
 
           <!-- Explanation -->
-          {% if item.explanation %}
+          {% if item.correct_answer %}
           <div class="mt-5 ml-16 p-5 bg-blue-50 border border-blue-100 rounded-xl">
             <p class="text-base text-blue-800 leading-relaxed">
-              <span class="font-semibold">💡 Explanation:</span> {{ item.explanation }}
+              <span class="font-semibold">💡 Explanation:</span> Correct answer: {{ item.correct_answer }}.
             </p>
           </div>
           {% endif %}

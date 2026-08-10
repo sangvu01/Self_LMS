@@ -69,7 +69,7 @@
         {% block sidebar_small_width %}
             <div class="list-group">
                 {% if course %}
-                    {% for chapter_item in course.chapters %}
+                    {% for chapter_item in course.chapters.all %}
                         <a href="{% url 'chapter_detail' course.slug chapter_item.slug %}"
                             class="list-group-item list-group-item-action {% if chapter and chapter.slug == chapter_item.slug %}active{% endif %}">
                                 {{ chapter_item.title }}
@@ -106,7 +106,7 @@
             {% block sidebar_big_width %}
                 <div class="list-group">
                     {% if course %}
-                        {% for chapter_item in course.chapters %}
+                        {% for chapter_item in course.chapters.all %}
                             <a href="{% url 'chapter_detail' course.slug chapter_item.slug %}"
                                 class="list-group-item list-group-item-action {% if chapter and chapter.slug == chapter_item.slug %}active{% endif %}">
                                     {{ chapter_item.title }}
