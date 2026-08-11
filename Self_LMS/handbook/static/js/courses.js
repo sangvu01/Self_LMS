@@ -24,9 +24,9 @@ index = () => {
                                         ${course.title}
                                     </h5>
 
-                                    <span class="badge bg-primary">
-                                        ${course.level}
-                                    </span>
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <span class="badge bg-primary">${course.level}</span>
+                                    </div>
                                 </div>
 
                                 <p class="card-text text-muted">
@@ -41,7 +41,6 @@ index = () => {
                                     ${chaptersHtml}
                                 </ul>
                                 <div class="card-footer bg-white border-0 pt-0">
-                                    
                                     <a href="/courses/${course.slug}/" class="btn btn-primary w-100">Open Course</a>
                                 </div>
                                 

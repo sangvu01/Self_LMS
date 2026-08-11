@@ -6,52 +6,84 @@
   <div class="max-w-2xl w-full">
 
     <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-10 text-center">
-      
-      <!-- Icon -->
-      <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-blue-100 flex items-center justify-center">
-        <span class="text-4xl">📝</span>
-      </div>
 
-      <!-- Title -->
-      <h1 class="text-3xl font-bold text-slate-800 mb-3">
-        {{ course.title }}
-      </h1>
-      <p class="text-slate-500 mb-10">
-        Sẵn sàng kiểm tra kiến thức của bạn?
-      </p>
-
-      <!-- Quiz Info -->
-      <div class="grid grid-cols-2 gap-6 mb-10 text-left">
-        <div class="bg-slate-50 rounded-2xl p-5">
-          <div class="text-sm text-slate-500 mb-1">Chủ đề</div>
-          <div class="font-semibold text-slate-800">{{ course.title }}</div>
+      {% if has_quiz %}
+        <!-- Có quiz: giao diện bình thường -->
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-blue-100 flex items-center justify-center">
+          <span class="text-4xl">📝</span>
         </div>
 
-        <div class="bg-slate-50 rounded-2xl p-5">
-          <div class="text-sm text-slate-500 mb-1">Số câu hỏi</div>
-          <div class="font-semibold text-slate-800">{{ total_questions }} câu</div>
+        <h1 class="text-3xl font-bold text-slate-800 mb-3">
+          {{ course.title }}
+        </h1>
+        <p class="text-slate-500 mb-10">
+          Sẵn sàng kiểm tra kiến thức của bạn?
+        </p>
+
+        <div class="grid grid-cols-2 gap-6 mb-10 text-left">
+          <div class="bg-slate-50 rounded-2xl p-5">
+            <div class="text-sm text-slate-500 mb-1">Chủ đề</div>
+            <div class="font-semibold text-slate-800">{{ course.title }}</div>
+          </div>
+          <div class="bg-slate-50 rounded-2xl p-5">
+            <div class="text-sm text-slate-500 mb-1">Số câu hỏi</div>
+            <div class="font-semibold text-slate-800">{{ total_questions }} câu</div>
+          </div>
+          <div class="bg-slate-50 rounded-2xl p-5">
+            <div class="text-sm text-slate-500 mb-1">Thời gian</div>
+            <div class="font-semibold text-slate-800">{{ duration }} phút</div>
+          </div>
+          <div class="bg-slate-50 rounded-2xl p-5">
+            <div class="text-sm text-slate-500 mb-1">Điểm tối đa</div>
+            <div class="font-semibold text-slate-800">{{ max_score }} điểm</div>
+          </div>
         </div>
 
-        <div class="bg-slate-50 rounded-2xl p-5">
-          <div class="text-sm text-slate-500 mb-1">Thời gian</div>
-          <div class="font-semibold text-slate-800">{{ duration }} phút</div>
+        <a href="/course/{{ course.slug }}/quiz/1/"
+           class="inline-block w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-lg font-semibold rounded-2xl shadow-md transition-all">
+          Bắt đầu làm bài →
+        </a>
+
+        <p class="text-sm text-slate-400 mt-6">
+          Bạn có thể quay lại các câu hỏi trước đó trong lúc làm bài.
+        </p>
+
+      {% else %}
+        <!-- Chưa có quiz -->
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-amber-100 flex items-center justify-center">
+          <span class="text-4xl">🚧</span>
         </div>
 
-        <div class="bg-slate-50 rounded-2xl p-5">
-          <div class="text-sm text-slate-500 mb-1">Điểm tối đa</div>
-          <div class="font-semibold text-slate-800">{{ max_score }} điểm</div>
+        <h1 class="text-3xl font-bold text-slate-800 mb-3">
+          {{ course.title }}
+        </h1>
+        <p class="text-slate-500 mb-2">
+          Quiz cho khóa học này chưa sẵn sàng.
+        </p>
+        <p class="text-lg font-medium text-amber-600 mb-10">
+          Câu hỏi sẽ sớm được cập nhật.
+        </p>
+
+        <div class="bg-slate-50 rounded-2xl p-6 mb-10 text-left">
+          <div class="text-sm text-slate-500 mb-2">Trạng thái</div>
+          <div class="font-semibold text-slate-800">Đang chuẩn bị nội dung quiz</div>
+          <p class="text-sm text-slate-500 mt-2">
+            Bạn vẫn có thể học các chapter của khóa trong lúc chờ đợi.
+          </p>
         </div>
-      </div>
 
-      <!-- Start Button -->
-      <a href="/course/{{ course.slug }}/quiz/1/" 
-         class="inline-block w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-lg font-semibold rounded-2xl shadow-md transition-all">
-        Bắt đầu làm bài →
-      </a>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="{% url 'course_detail' course.slug %}"
+             class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl transition">
+            Xem Documentation
+          </a>
+          <a href="{% url 'courses' %}"
+             class="px-8 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-2xl transition">
+            Về My courses
+          </a>
+        </div>
+      {% endif %}
 
-      <p class="text-sm text-slate-400 mt-6">
-        Bạn có thể quay lại các câu hỏi trước đó trong lúc làm bài.
-      </p>
     </div>
 
   </div>

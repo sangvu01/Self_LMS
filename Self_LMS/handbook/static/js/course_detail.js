@@ -139,7 +139,64 @@ index = () => {
    class="list-group-item list-group-item-action">
     📝 Start Quiz
 </a>`);
-        $("#course-detail").html(`${courseHTML}`);
+        // $("#course-detail").html(`${courseHTML}`);
+        $("#course-detail").append(`
+            <div class="mb-4">
+                <a href="/courses/" class="btn btn-outline-secondary btn-sm mb-3">← My Courses</a>
+                <h2 class="fw-bold mb-2">${data.title}</h2>
+                <p class="text-muted mb-0">${ data.description }</p>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4 border-primary-subtle">
+                <div class="card-body">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                        <div>
+                            <h5 class="fw-bold mb-1">📝 Quiz check</h5>
+                            <p class="text-muted mb-0">Test your understanding of this course with a short randomized quiz.</p>
+                        </div>
+                        <a href="/course/${courseSlug}/start/" class="btn btn-primary">Start quiz</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Recent attempts</h5>
+                        <span class="badge bg-primary">Latest 3</span>
+                    </div>
+                    ${(data.recent_attempts || []).slice(0, 3).length ? (data.recent_attempts || []).slice(0, 3).map(attempt => `
+                        <div class="d-flex justify-content-between align-items-center border rounded-2 px-3 py-2 mb-2">
+                            <div>
+                                <div class="fw-semibold">${attempt.user}</div>
+                                <small class="text-muted">${attempt.created_at}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold">${attempt.score}%</div>
+                                <small class="text-muted">${attempt.correct_answers ?? 0}/${attempt.total_questions}</small>
+                            </div>
+                        </div>
+                    `).join("") : `<div class="text-muted">No quiz attempts yet for this course.</div>`}
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="badge bg-primary">${ data.level }</span>
+                        <span class="badge bg-light text-dark">Duration: ${ data.duration }</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Course Content</h5>
+                        <span class="badge bg-secondary">${ data.chapters.length } chapters</span>
+                    </div>
+                    <div class="list-group">
+                        ${chapterHTML}
+                    </div>
+                </div>
+            </div> 
+            `)
     })
     
 

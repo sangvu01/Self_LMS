@@ -15,6 +15,22 @@
 </div>
 
 {% endblock %}
+
+
+{% block footer %}
+    
+{% endblock footer %}
+{% block sidebar_big_width %}
+    {% comment %} <div class="list-group" id="sidebar_big_width"> {% endcomment %}
+    <div id="sidebar_big_width">
+
+    </div>
+{% endblock sidebar_big_width %}
+{% block sidebar_small_width %}
+    <div id="sidebar_small_width">
+
+    </div>
+{% endblock sidebar_small_width %} 
 {% block jsfooter %}
     <script>
         const API = {
@@ -23,21 +39,6 @@
     </script>
     <script src="{%static 'js/chapter.js'%}"></script>
 {% endblock jsfooter %}
-
-{% block footer %}
-    
-{% endblock footer %}
-{% block sidebar_big_width %}
-    <div class="list-group" id="sidebar_big_width">
-
-    </div>
-{% endblock sidebar_big_width %}
-{% block sidebar_small_width %}
-    <div class="list-group" id="sidebar_small_width">
-
-    </div>
-{% endblock sidebar_small_width %} 
-
 {% comment %} 
 <div class="p-4">
     <div class="mb-4">
