@@ -15,7 +15,105 @@ function renderChapters(chapters, courseSlug) {
     });
     return chapterHTML;
 }
-function renderSidebar(chapters, courseSlug, current_chapter_slug, course_title, isMobile){
+function renderSidebar(
+    chapters,
+    courseSlug,
+    current_chapter_slug,
+    course_title,
+    isMobile
+) {
+
+    let sidebar = "";
+
+    // =========================
+    // MOBILE
+    // =========================
+    if (isMobile) {
+
+        sidebar += `
+            <div class="offcanvas-header">
+
+                <a href="/courses/${courseSlug}/"
+                   class="text-decoration-none text-dark">
+
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-journal-bookmark"></i>
+                        ${course_title}
+                    </h5>
+
+                </a>
+
+                <button
+                    class="btn-close"
+                    data-bs-dismiss="offcanvas">
+                </button>
+
+            </div>
+
+            <div class="offcanvas-body">
+
+                <div class="list-group">
+        `;
+
+    }
+
+    // =========================
+    // DESKTOP
+    // =========================
+    else {
+
+        sidebar += `
+            <h5 class="fw-bold mb-4">
+                <i class="bi bi-journal-bookmark"></i>
+                ${course_title}
+            </h5>
+
+            <div class="list-group">
+        `;
+
+    }
+
+    // =========================
+    // CHAPTERS
+    // =========================
+
+    chapters.forEach(chapter => {
+
+        const active =
+            chapter.slug === current_chapter_slug
+                ? "active"
+                : "";
+
+        sidebar += `
+            <a href="/courses/${courseSlug}/${chapter.slug}/"
+               class="list-group-item list-group-item-action ${active}">
+                ${chapter.title}
+            </a>
+        `;
+    });
+    sidebar += `<a href="/course/${courseSlug}/start/" 
+   class="list-group-item list-group-item-action">
+    📝 Start Quiz
+</a>`
+
+
+    // =========================
+    // CLOSE WRAPPER
+    // =========================
+
+    sidebar += `
+            </div>
+        `;
+
+    if (isMobile) {
+        sidebar += `
+            </div>
+        `;
+    }
+
+    return sidebar;
+}
+function renderSidebar1(chapters, courseSlug, current_chapter_slug, course_title, isMobile){
     button = isMobile ? `<button
                 class="btn-close"
                 data-bs-dismiss="offcanvas">
@@ -131,14 +229,8 @@ index = () => {
         const sidebar = renderSidebar(data.chapters, courseSlug, data.current_chapter, data.title, false);
         const sidebarHTML_mobile = renderSidebar(data.chapters, courseSlug, data.current_chapter, data.title, true);
         const courseHTML = renderCourse(data, chapterHTML);
-        $("#sidebar_small_width").html(`${sidebarHTML_mobile}` + `<a href="/course/${courseSlug}/start/" 
-   class="list-group-item list-group-item-action">
-    📝 Start Quiz
-</a>`);
-        $("#sidebar_big_width").html(`${sidebar}` + `<a href="/course/${courseSlug}/start/" 
-   class="list-group-item list-group-item-action">
-    📝 Start Quiz
-</a>`);
+        $("#sidebar_small_width").html(`${sidebarHTML_mobile}`);
+        $("#sidebar_big_width").html(`${sidebar}`);
         // $("#course-detail").html(`${courseHTML}`);
         $("#course-detail").append(`
             <div class="mb-4">

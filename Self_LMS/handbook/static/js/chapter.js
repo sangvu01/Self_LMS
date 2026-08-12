@@ -46,10 +46,11 @@ function renderSidebar(
     else {
 
         sidebar += `
-            <h5 class="fw-bold mb-4">
+            <a href="/courses/${courseSlug}/"
+                   class="text-decoration-none text-dark"><h5 class="fw-bold mb-4">
                 <i class="bi bi-journal-bookmark"></i>
                 ${course_title}
-            </h5>
+            </h5></a>
 
             <div class="list-group">
         `;
@@ -267,10 +268,7 @@ index = () => {
 
         // $("#sidebar_small_width").html(`${sidebarHTML_mobile}`);
         // $("#sidebar_big_width").html(`${sidebarHTML}`);
-        $("#sidebar_small_width").html(`${sidebarHTML_mobile}` + `<a href="/course/${courseSlug}/start/" 
-   class="list-group-item list-group-item-action">
-    📝 Start Quiz
-</a>`);
+        $("#sidebar_small_width").html(`${sidebarHTML_mobile}`);
         $("#sidebar_big_width").html(`${sidebarHTML}`);
         $("#chapter-detail").html(contenthtml)
     });

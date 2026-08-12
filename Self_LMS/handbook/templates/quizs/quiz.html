@@ -210,9 +210,65 @@
 
 </div>
 {% endblock %}
+
+{% block sidebar_small_width %}
+<div id="sidebar_small_width">
+
+</div>
+{% comment %} <div class="offcanvas-header">
+
+    <a href="/courses/{{ course.slug }}/"
+       class="text-decoration-none text-dark">
+
+        <h5 class="fw-bold mb-0">
+            <i class="bi bi-journal-bookmark"></i>
+            {{ course.title }}
+        </h5>
+
+    </a>
+
+    <button
+        class="btn-close"
+        data-bs-dismiss="offcanvas">
+    </button>
+
+</div>
+
+<div class="offcanvas-body">
+
+    <div class="list-group">
+
+        {% for chapter_item in course.chapters.all %}
+
+            <a href="/courses/{{ course.slug }}/{{ chapter_item.slug }}/"
+               class="list-group-item list-group-item-action">
+
+                {{ chapter_item.title }}
+
+            </a>
+
+        {% endfor %}
+
+        <a href="/course/{{ course.slug }}/start/"
+           class="list-group-item list-group-item-action">
+
+            📝 Start Quiz
+
+        </a>
+
+    </div>
+
+</div> {% endcomment %}
+
+{% endblock sidebar_small_width %}
+{% block sidebar_big_width %}
+  <div id="sidebar_big_width"></div>
+{% endblock sidebar_big_width %}
+
 {% block jsfooter %}
 <script>
   const COURSE_SLUG = "{{ course.slug }}";
+  console.log(COURSE_SLUG)
   const CURRENT_QUIZ_ID = {{ quiz_id }};
   const TIMER_KEY = `quiz_timer_${COURSE_SLUG}`;
 
@@ -298,5 +354,120 @@
     quizForm.appendChild(input);
     quizForm.submit();
   });
+  function renderSidebar(
+    chapters,
+    courseSlug,
+    current_chapter_slug,
+    course_title,
+    isMobile
+) {
+
+    let sidebar = "";
+
+    // =========================
+    // MOBILE
+    // =========================
+    if (isMobile) {
+
+        sidebar += `
+            <div class="offcanvas-header">
+
+                <a href="/courses/${courseSlug}/"
+                   class="text-decoration-none text-dark">
+
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-journal-bookmark"></i>
+                        ${course_title}
+                    </h5>
+
+                </a>
+
+                <button
+                    class="btn-close"
+                    data-bs-dismiss="offcanvas">
+                </button>
+
+            </div>
+
+            <div class="offcanvas-body">
+
+                <div class="list-group">
+        `;
+
+    }
+
+    // =========================
+    // DESKTOP
+    // =========================
+    else {
+
+        sidebar += `
+            <a href="/courses/${courseSlug}/"
+                   class="text-decoration-none text-dark"><h5 class="fw-bold mb-4">
+                <i class="bi bi-journal-bookmark"></i>
+                ${course_title}
+            </h5></a>
+
+            <div class="list-group">
+        `;
+
+    }
+
+    // =========================
+    // CHAPTERS
+    // =========================
+
+    chapters.forEach(chapter => {
+
+        const active =
+            chapter.slug === current_chapter_slug
+                ? "active"
+                : "";
+
+        sidebar += `
+            <a href="/courses/${courseSlug}/${chapter.slug}/"
+               class="list-group-item list-group-item-action ${active}">
+                ${chapter.title}
+            </a>
+        `;
+    });
+    sidebar += `<a href="/course/${courseSlug}/start/" 
+   class="list-group-item list-group-item-action">
+    📝 Start Quiz
+</a>`
+
+
+    // =========================
+    // CLOSE WRAPPER
+    // =========================
+
+    sidebar += `
+            </div>
+        `;
+
+    if (isMobile) {
+        sidebar += `
+            </div>
+        `;
+    }
+
+    return sidebar;
+}
+const courseSlug = "{{ course.slug }}";
+const course_title = "{{ course.title }}";
+
+const chapters = [
+    {% for chapter in course.chapters.all %}
+    {
+        slug: "{{ chapter.slug }}",
+        title: "{{ chapter.title }}"
+    },
+    {% endfor %}
+];
+  const sidebarHTML = renderSidebar(chapters, courseSlug, "", course_title, false);
+  console.log(sidebarHTML)
+  const sidebarHTML_mobile = renderSidebar(chapters, courseSlug, "", course_title, true);
+  $("#sidebar_small_width").html(`${sidebarHTML_mobile}`);
+        $("#sidebar_big_width").html(`${sidebarHTML}`);
 </script>
 {% endblock jsfooter %}
